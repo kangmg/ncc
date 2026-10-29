@@ -1,0 +1,311 @@
+---
+import Icon from "./Icon.astro";
+import { type Article, type Version, journal, u, byId, latest, articlePath, formatDate, citationLine, slug, issueUrl, subjectById } from "../lib/data";
+import { renderMath } from "../lib/math";
+
+interface Props {
+  article: Article;
+  version: Version;
+  searchable?: boolean;
+}
+const { article, version, searchable = false } = Astro.props;
+const newest = latest(article);
+const isLatest = version.version === newest.version;
+const withdrawn = article.status === "withdrawn";
+const tr = version.translation ?? null;
+const related = article.related.map((id) => byId(id)).filter((a): a is Article => Boolean(a));
+const affiliationList = version.affiliations;
+const doiPending = !version.doi && version.mint_doi && !article.example && !withdrawn;
+const original = {
+  title: version.title,
+  abstract: renderMath(version.abstract_html),
+  body: renderMath(version.body_html),
+};
+const english = tr ? { title: tr.title, abstract: renderMath(tr.abstract_html), body: renderMath(tr.body_html) } : null;
+const showPdfInline = version.body_kind === "pdf" || version.body_kind === "typst";
+const ai = version.ai && version.ai.level !== "none" ? version.ai : null;
+const markBackmatter = (html: string) => html.replace('<div class="backmatter">', '<div class="backmatter" id="article-information">');
+if (english?.body) english.body = markBackmatter(english.body);
+else if (original.body) original.body = markBackmatter(original.body);
+const articleSubjects = article.subjects.map(subjectById).filter((s) => s !== undefined);
+const shownBody = english?.body || original.body || "";
+const outline = withdrawn ? [] : [
+  { id: "abstract-title", title: "Abstract" },
+  ...[...shownBody.matchAll(/<h2 id="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => ({ id: m[1], title: m[2].replace(/<[^>]+>/g, "").trim() })),
+  ...(/class="backmatter"/.test(shownBody) ? [{ id: "article-information", title: "Article information" }] : []),
+];
+const hasOutline = outline.length > 2;
+const discussUrl = article.issue ? `https://github.com/${journal.github.repo}/issues/${article.issue}` : `https://github.com/${journal.github.repo}/discussions`;
+---
+<div class="wrap">
+  <ol class="crumbs" aria-label="Breadcrumb">
+    <li><a href={u("/")}>Home</a></li>
+    {article.example ? <li><a href={u("/examples/")}>Example manuscripts</a></li> : <li><a href={u("/archive/")}>Volume {article.volume} ({article.year})</a></li>}
+    <li aria-current="page">{version.type_label}</li>
+  </ol>
+  <div class:list={["article-grid", { "has-outline": hasOutline }]}>
+    {hasOutline && (
+      <nav class="outline" aria-label="Sections">
+        <h2>Sections</h2>
+        <ol>{outline.map((o) => <li><a href={`#${o.id}`}>{o.title}</a></li>)}</ol>
+      </nav>
+    )}
+    <article data-pagefind-body={searchable ? "" : undefined}>
+      <header class="article-head">
+        <p class="toc-kicker">
+          <span class="toc-type">{withdrawn ? "Withdrawn article" : version.type_label}</span>
+          {!withdrawn && <span class="oa-badge"><Icon name="lock-open" />Open access</span>}
+          {ai && (ai.level === "substantial" || ai.level === "agent-led") && <a href={u("/agents/")}>{ai.label}</a>}
+        </p>
+
+        {article.example && (
+          <div class="notice notice-danger" role="note">
+            <p><strong>Example manuscript.</strong>{" "}This page shows how a submission in the{" "}
+            <code>{version.body_kind === "sections" ? "sections" : version.body_kind === "pdf" ? "pdf" : "body_file"}</code>{" "}format is published.
+            Its data are illustrative; it is not a published article.</p>
+          </div>
+        )}
+        {!isLatest && !withdrawn && (
+          <div class="notice notice-info" role="note">
+            <p>You are reading <strong>version {version.version}</strong> ({formatDate(version.published)}).
+            The latest is <a href={articlePath(article)}>version {newest.version}</a>.</p>
+          </div>
+        )}
+
+        <h1 data-lang-swap data-lang={version.language} lang={english ? "en" : version.language} data-original={original.title} data-english={english?.title}>{english?.title ?? original.title}</h1>
+        {version.subtitle && <p class="subtitle">{version.subtitle}</p>}
+
+        <ul class="author-list">
+          {version.authors.map((a) => (
+            <li>
+              {a.github && !article.example ? <a href={u(`/authors/${a.github.toLowerCase()}/`)}>{a.name}</a> : <span>{a.name}</span>}
+              {(a.affiliations.length > 0 || a.corresponding) && (
+                <sup>{a.affiliations.join(",")}{a.corresponding && (a.affiliations.length ? ",*" : "*")}</sup>
+              )}
+              {a.orcid && (
+                <a class="orcid" href={`https://orcid.org/${a.orcid}`} aria-label={`ORCID of ${a.name}`} title={`ORCID ${a.orcid}`}>
+                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#A6CE39" /><path fill="#fff" d="M8.2 7.4a.9.9 0 1 1-1.8 0 .9.9 0 0 1 1.8 0ZM6.6 9.1h1.4V17H6.6V9.1Zm3.4 0h3.8c3.6 0 5.2 2.6 5.2 4 0 2.1-1.6 3.9-5.2 3.9H10V9.1Zm1.4 6.7h2.3c2.9 0 3.6-2.2 3.6-2.8 0-1.4-1-2.7-3.6-2.7h-2.3v5.5Z" /></svg>
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+        {affiliationList.length > 0 && (
+          <ol class="affiliations">
+            {affiliationList.map((aff, i) => <li><sup>{i + 1}</sup> {aff}</li>)}
+          </ol>
+        )}
+
+        <p class="article-cite">
+          <cite>{article.example ? "Example manuscript" : citationLine(article)}</cite>
+          {version.doi && <> · <a href={`https://doi.org/${version.doi}`}>https://doi.org/{version.doi}</a></>}
+        </p>
+
+        <div class="history">
+          <span>Received <b>{formatDate(article.submitted)}</b></span>
+          <span>Accepted <b>{formatDate(article.accepted)}</b></span>
+          <span>Published <b>{formatDate(version.published)}</b></span>
+          <span>Version <b>{version.version}</b>{isLatest && article.versions.length > 1 && " (latest)"}</span>
+          {version.doi ? (
+            <span>DOI <a href={`https://doi.org/${version.doi}`}>{version.doi}</a></span>
+          ) : doiPending ? (
+            <span>DOI <b>pending</b> (registered {journal.doi.delay_days} days after publication)</span>
+          ) : null}
+        </div>
+      </header>
+
+      {withdrawn ? (
+        <section class="notice notice-danger" aria-labelledby="withdrawn-title">
+          <h2 id="withdrawn-title" style="margin:0 0 6px;font-size:1.2rem">This article was withdrawn on {formatDate(article.withdrawn!.date)}</h2>
+          <p>Reason given by the authors: {article.withdrawn!.reason}</p>
+          <p>The title, authors, and dates remain here so that existing links and citations resolve.</p>
+        </section>
+      ) : (
+        <>
+          {tr && (
+            <div data-translation-controls>
+              <div class="lang-tabs" role="tablist" aria-label="Language">
+                <button type="button" role="tab" aria-selected="true" data-lang="english">English (AI translation)</button>
+                <button type="button" role="tab" aria-selected="false" data-lang="original">{version.language_name} (original)</button>
+              </div>
+              <div class="notice notice-caution" role="note" data-show="english">
+                <p><strong>AI-translated.</strong> {tr.disclaimer}</p>
+              </div>
+            </div>
+          )}
+
+          <section class:list={["abstract", { "has-graphic": version.toc_graphic }]} aria-labelledby="abstract-title">
+            <div>
+              <h2 id="abstract-title">Abstract</h2>
+              {english && <div class="prose" data-show="english" set:html={english.abstract} />}
+              <div class="prose" data-show="original" lang={version.language} hidden={english ? true : undefined} set:html={original.abstract} />
+            </div>
+            {version.toc_graphic && (
+              <figure class="toc-graphic">
+                <img src={version.toc_graphic} alt="Graphical abstract" />
+                <figcaption>Graphical abstract</figcaption>
+              </figure>
+            )}
+          </section>
+
+          <div class="keywords">
+            <span>Keywords</span>
+            <ul class="chips">
+              {version.tags.map((t) => <li><a class="chip" href={u(`/tags/${slug(t)}/`)}>{t}</a></li>)}
+            </ul>
+          </div>
+
+          {showPdfInline && version.pdf && (
+            <object class="pdf-frame" data={version.pdf} type="application/pdf" aria-label="Article PDF">
+              <p>Your browser cannot show PDFs inline. <a href={version.pdf}>Download the PDF</a>.</p>
+            </object>
+          )}
+          {english?.body && <div class="prose" data-show="english" set:html={english.body} />}
+          {original.body && <div class="prose" data-show="original" lang={version.language} hidden={english?.body ? true : undefined} set:html={original.body} />}
+          {showPdfInline && english && (
+            <p class="muted" data-show="english">The English translation covers the title and abstract; the full text is in the original PDF.</p>
+          )}
+        </>
+      )}
+    </article>
+
+    <aside class="aside" aria-label="Article tools">
+      {!withdrawn && (
+        <div class="aside-block">
+          <h2>Download</h2>
+          {version.pdf && <a class="btn btn-primary" href={version.pdf}>Download PDF</a>}
+          {tr?.pdf && <a class="btn btn-secondary" href={tr.pdf}>English PDF (AI translation)</a>}
+          {version.supporting_information && version.supporting_information.length > 0 && (
+            <ul class="related" style="margin-top:12px">
+              {version.supporting_information.map((si) => <li><a href={si.url}>{si.file}</a>: {si.description}</li>)}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {version.cite && (
+        <div class="aside-block" data-cite>
+          <h2>Cite this article</h2>
+          <div class="cite-tabs" role="tablist" aria-label="Citation format">
+            <button type="button" role="tab" aria-selected="true" data-format="acs">ACS</button>
+            <button type="button" role="tab" aria-selected="false" data-format="bibtex">BibTeX</button>
+            <button type="button" role="tab" aria-selected="false" data-format="ris">RIS</button>
+          </div>
+          <pre class="cite-text" data-format-text="acs">{version.cite.acs}</pre>
+          <pre class="cite-text" data-format-text="bibtex" hidden>{version.cite.bibtex}</pre>
+          <pre class="cite-text" data-format-text="ris" hidden>{version.cite.ris}</pre>
+          <button type="button" class="copy" data-copy>Copy</button>
+        </div>
+      )}
+
+      {articleSubjects.length > 0 && (
+        <div class="aside-block">
+          <h2>Subjects</h2>
+          <ul class="related">
+            {articleSubjects.map((s) => <li><a href={u(`/subjects/${s.id}/`)}>{s.name}</a></li>)}
+          </ul>
+        </div>
+      )}
+
+      <div class="aside-block">
+        <h2>Versions</h2>
+        <ol class="versions">
+          {article.versions.map((v) => (
+            <li>
+              <a href={articlePath(article, v.version)} class:list={{ current: v.version === version.version }} aria-current={v.version === version.version ? "page" : undefined}>Version {v.version}</a> · {formatDate(v.published)}
+              {v.doi && <><br /><a href={`https://doi.org/${v.doi}`}>doi:{v.doi}</a></>}
+              {v.changelog && <><br /><span class="muted">{v.changelog}</span></>}
+            </li>
+          ))}
+        </ol>
+        {article.concept_doi && <p>All versions: <a href={`https://doi.org/${article.concept_doi}`}>doi:{article.concept_doi}</a></p>}
+      </div>
+
+      {ai && (
+        <div class="aside-block">
+          <h2>AI contribution</h2>
+          <p style="margin:0 0 8px"><strong>{ai.label}</strong></p>
+          {ai.agents.length > 0 && (
+            <ul class="related">
+              {ai.agents.map((a) => (
+                <li>{a.name}{a.model && <span class="muted"> ({a.model})</span>}: {a.roles.join(", ")}</li>
+              ))}
+            </ul>
+          )}
+          {ai.logs && <p style="margin:8px 0 0"><a href={ai.logs}>Agent logs</a></p>}
+        </div>
+      )}
+
+      {!article.example && (
+        <div class="aside-block">
+          <h2>Review</h2>
+          {version.article_type === "editorial" ? (
+            <p style="margin:0">Editorial content by the journal's maintainer. Not reviewed.</p>
+          ) : (
+            <p style="margin:0">Screened by an AI agent for scope and integrity and confirmed by the maintainer. Not peer-reviewed: the research itself was not evaluated.
+            {article.issue && <> <a href={discussUrl}>Read the screening report</a>.</>}</p>
+          )}
+          <p style="margin:6px 0 0"><a href={u("/policy/")}>How screening works</a></p>
+        </div>
+      )}
+
+      <div class="aside-block">
+        <h2>Licence</h2>
+        <p style="margin:0">{version.license.replace(/-/g, " ").replace("CC BY", "CC BY")}. You may share and adapt this work with attribution.</p>
+      </div>
+
+      {related.length > 0 && (
+        <div class="aside-block">
+          <h2>Related articles</h2>
+          <ul class="related">
+            {related.map((r) => <li><a href={articlePath(r)}>{latest(r).translation?.title ?? latest(r).title}</a></li>)}
+          </ul>
+        </div>
+      )}
+
+      {!article.example && !withdrawn && (
+        <div class="aside-block">
+          <h2>Discuss</h2>
+          <p style="margin:0 0 8px"><a href={discussUrl}>Comment on GitHub</a></p>
+          <p class="muted" style="margin:0">Authors can <a href={issueUrl("2-revision.yml")}>post a revised version</a>.</p>
+        </div>
+      )}
+    </aside>
+  </div>
+</div>
+
+<script>
+  for (const controls of document.querySelectorAll<HTMLElement>("[data-translation-controls]")) {
+    const root = controls.closest("article")!;
+    const title = root.querySelector<HTMLElement>("[data-lang-swap]");
+    const buttons = controls.querySelectorAll<HTMLButtonElement>("[data-lang]");
+    const show = (lang: string) => {
+      buttons.forEach((b) => b.setAttribute("aria-selected", String(b.dataset.lang === lang)));
+      root.querySelectorAll<HTMLElement>("[data-show]").forEach((el) => (el.hidden = el.dataset.show !== lang));
+      if (title) {
+        title.textContent = (lang === "english" ? title.dataset.english : title.dataset.original) ?? title.textContent;
+        title.lang = lang === "english" ? "en" : title.dataset.lang ?? "en";
+      }
+    };
+    buttons.forEach((b) => b.addEventListener("click", () => show(b.dataset.lang!)));
+  }
+  for (const block of document.querySelectorAll<HTMLElement>("[data-cite]")) {
+    const tabs = block.querySelectorAll<HTMLButtonElement>("[data-format]");
+    const texts = block.querySelectorAll<HTMLElement>("[data-format-text]");
+    let current = "acs";
+    tabs.forEach((tab) =>
+      tab.addEventListener("click", () => {
+        current = tab.dataset.format!;
+        tabs.forEach((t) => t.setAttribute("aria-selected", String(t === tab)));
+        texts.forEach((t) => (t.hidden = t.dataset.formatText !== current));
+      }),
+    );
+    const copy = block.querySelector<HTMLButtonElement>("[data-copy]")!;
+    copy.addEventListener("click", async () => {
+      const text = block.querySelector<HTMLElement>(`[data-format-text="${current}"]`)!.textContent ?? "";
+      await navigator.clipboard.writeText(text);
+      copy.textContent = "Copied";
+      setTimeout(() => (copy.textContent = "Copy"), 1600);
+    });
+  }
+</script>

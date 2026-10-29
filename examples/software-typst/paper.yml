@@ -1,0 +1,18 @@
+title: "aseview: A Lightweight Trajectory Viewer for ASE"
+article_type: software
+language: en
+authors:
+  - name: Mingi Kang
+    github: kangmg
+    corresponding: true
+abstract: |
+  aseview renders ASE trajectories as a self-contained HTML viewer so that
+  optimisation and molecular-dynamics runs on remote clusters can be inspected
+  without a desktop session. This example shows a manuscript the author typeset in
+  Typst; the journal compiles it unchanged and adds a cover page with citation
+  metadata.
+tags: [Software, MD, Simulation]
+body_file: manuscript.typ
+data_availability: "Not applicable; no data were generated."
+code_availability: "https://github.com/kangmg/aseview (MIT licence)"
+ai_use: "None."

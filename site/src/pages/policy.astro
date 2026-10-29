@@ -1,0 +1,24 @@
+---
+import Base from "../layouts/Base.astro";
+import { pages } from "../lib/data";
+
+const html = pages.policy ?? "<p>Policy not built yet.</p>";
+const outline = [...html.matchAll(/<section id="([^"]+)" class="level3">\s*<h3>([\s\S]*?)<\/h3>/g)].map((m) => ({
+  id: m[1],
+  title: m[2].replace(/<[^>]+>/g, "").trim(),
+}));
+---
+<Base title="Editorial policy" current="policy" description="Purpose, disclaimer, screening, versions, withdrawal, DOIs, AI agents, and the knowledge base.">
+  <div class="wrap">
+    <div class="policy-grid">
+      <nav class="outline" aria-label="Policy sections">
+        <h2>Sections</h2>
+        <ol>{outline.map((o) => <li><a href={`#${o.id}`}>{o.title}</a></li>)}</ol>
+      </nav>
+      <div class="doc policy-doc">
+        <h1 class="page-title">Editorial policy</h1>
+        <div class="prose" set:html={html} />
+      </div>
+    </div>
+  </div>
+</Base>

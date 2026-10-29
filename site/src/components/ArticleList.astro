@@ -1,0 +1,56 @@
+---
+import Icon from "./Icon.astro";
+import { type Article, latest, articlePath, formatDate, citationLine } from "../lib/data";
+import { renderMath } from "../lib/math";
+
+interface Props {
+  items: Article[];
+  empty?: string;
+  filterable?: boolean;
+  abstracts?: boolean;
+}
+const { items, empty = "No articles yet.", filterable = false, abstracts = true } = Astro.props;
+---
+{items.length === 0 ? (
+  <p class="empty">{empty}</p>
+) : (
+  <ol class="toc-list">
+    {items.map((article) => {
+      const v = latest(article);
+      const withdrawn = article.status === "withdrawn";
+      const title = v.translation?.title ?? v.title;
+      const abstract = v.translation?.abstract_html ?? v.abstract_html;
+      return (
+        <li class:list={["toc-item", { "no-thumb": !v.toc_graphic }]} data-tags={filterable ? v.tags.join("|") : undefined}>
+          <div>
+            <p class="toc-kicker">
+              <span class="toc-type">{withdrawn ? "Withdrawn" : v.type_label}</span>
+              {!withdrawn && <span class="oa-badge"><Icon name="lock-open" />Open access</span>}
+              {v.language !== "en" && <span class="muted">{v.language_name} original</span>}
+            </p>
+            <h3><a href={articlePath(article)}>{title}</a></h3>
+            <p class="toc-authors">{v.authors.map((a) => a.name).join(", ")}</p>
+            <p class="toc-meta">
+              <cite>{article.example ? "Example manuscript" : citationLine(article)}</cite> · Published {formatDate(v.published)}
+              {v.version > 1 && ` · Version ${v.version}`}
+              {v.doi && <> · <a href={`https://doi.org/${v.doi}`}>https://doi.org/{v.doi}</a></>}
+            </p>
+            {!withdrawn && (
+              <div class="toc-actions">
+                {abstracts && abstract && (
+                  <details class="toc-abstract">
+                    <summary><Icon name="chevron" />Abstract</summary>
+                    <div class="prose" set:html={renderMath(abstract)} />
+                  </details>
+                )}
+                {v.pdf && <a href={v.pdf}><Icon name="file" />PDF</a>}
+                <a href={articlePath(article)}>Full text</a>
+              </div>
+            )}
+          </div>
+          {v.toc_graphic && <img class="toc-thumb" src={v.toc_graphic} alt="" loading="lazy" width="176" height="88" />}
+        </li>
+      );
+    })}
+  </ol>
+)}

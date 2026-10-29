@@ -1,0 +1,119 @@
+name: Editorial decision
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  models: read
+
+concurrency:
+  group: editorial
+  cancel-in-progress: false
+
+jobs:
+  accept:
+    # Only the repository owner can accept: either by adding the `accepted` label or by
+    # commenting `/accept`. Labels already require triage rights; the sender check is explicit.
+    if: >-
+      (github.event_name == 'issues' && github.event.label.name == 'accepted' &&
+       github.event.sender.login == github.repository_owner) ||
+      (github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
+       github.event.comment.author_association == 'OWNER' &&
+       startsWith(github.event.comment.body, '/accept'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-journal
+
+      - name: Apply the issue to the repository
+        id: apply
+        run: |
+          set +e
+          result=$(uv run jtools issue apply --event "$GITHUB_EVENT_PATH" --summary build/summary.md)
+          code=$?
+          set -e
+          echo "$result"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" = "0" ] || [ "$code" = "1" ]; then
+            {
+              echo "id=$(echo "$result" | jq -r .id)"
+              echo "kind=$(echo "$result" | jq -r .kind)"
+              echo "dir=$(echo "$result" | jq -r .dir)"
+              echo "version=$(echo "$result" | jq -r .version)"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Report a failed acceptance
+        if: steps.apply.outputs.code != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body-file build/summary.md
+          exit 1
+
+      - name: AI translation for non-English manuscripts
+        if: steps.apply.outputs.kind != 'withdrawal'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run jtools translate "${{ steps.apply.outputs.dir }}"
+
+      - name: Validate
+        run: uv run jtools validate "papers/${{ steps.apply.outputs.id }}"
+
+      - name: Open the publication pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number }}
+          ARTICLE: ${{ steps.apply.outputs.id }}
+          KIND: ${{ steps.apply.outputs.kind }}
+          VERSION: ${{ steps.apply.outputs.version }}
+        run: |
+          set -euo pipefail
+          branch="publish/issue-$NUMBER"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add papers
+          label="$ARTICLE"
+          [ "$VERSION" != "null" ] && label="${ARTICLE}v${VERSION}"
+          git commit -m "Publish $KIND $label (#$NUMBER)"
+          git push --force origin "$branch"
+          if [ "$KIND" = "withdrawal" ]; then
+            printf "\nAfter merging, run the **DOI** workflow with action \`withdraw\` and article \`%s\` if a DOI was registered.\n" "$ARTICLE" >> build/summary.md
+          fi
+          url=$(gh pr create --base "${{ github.event.repository.default_branch }}" --head "$branch" \
+                --title "Publish $KIND $label" --body-file build/summary.md)
+          gh issue comment "$NUMBER" --body "Accepted. Publication pull request: $url. Merging it publishes the article."
+          gh issue edit "$NUMBER" --add-label "accepted" || true
+
+  decide:
+    if: >-
+      github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
+      github.event.comment.author_association == 'OWNER' &&
+      (startsWith(github.event.comment.body, '/decline') || startsWith(github.event.comment.body, '/revise'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record the decision
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          BODY: ${{ github.event.comment.body }}
+        run: |
+          set -euo pipefail
+          case "$BODY" in
+            /decline*)
+              gh issue edit "$NUMBER" --repo "$REPO" --add-label "declined" --remove-label "ready-for-review" || true
+              gh issue close "$NUMBER" --repo "$REPO" --reason "not planned"
+              ;;
+            /revise*)
+              gh issue edit "$NUMBER" --repo "$REPO" --add-label "revision-requested" --remove-label "ready-for-review" || true
+              gh issue comment "$NUMBER" --repo "$REPO" --body "The maintainer requested changes. Edit the issue; the automated preview updates on every edit. Comment /review to screen it again."
+              ;;
+          esac

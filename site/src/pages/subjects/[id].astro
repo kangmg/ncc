@@ -1,0 +1,34 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArticleList from "../../components/ArticleList.astro";
+import { subjects, published, u, slug, type Subject, type Article } from "../../lib/data";
+
+export function getStaticPaths() {
+  return subjects.map((subject) => ({
+    params: { id: subject.id },
+    props: { subject, items: published().filter((a) => a.subjects.includes(subject.id)) },
+  }));
+}
+
+interface Props {
+  subject: Subject;
+  items: Article[];
+}
+const { subject, items } = Astro.props;
+---
+<Base title={subject.name} current="subjects" description={subject.description}>
+  <div class="wrap">
+    <ol class="crumbs" aria-label="Breadcrumb">
+      <li><a href={u("/")}>Home</a></li>
+      <li><a href={u("/subjects/")}>Subjects</a></li>
+      <li aria-current="page">{subject.name}</li>
+    </ol>
+    <h1 class="page-title">{subject.name}</h1>
+    <p class="lede">{subject.description}</p>
+    <ul class="chips" aria-label="Keywords in this subject" style="margin-bottom:8px">
+      {subject.tags.map((t) => <li><a class="chip" href={u(`/tags/${slug(t)}/`)}>{t}</a></li>)}
+    </ul>
+    <h2 class="rule-title">{items.length} article{items.length === 1 ? "" : "s"}</h2>
+    <ArticleList items={items} empty={`No articles in ${subject.name} yet. Yours could be the first.`} />
+  </div>
+</Base>

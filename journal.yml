@@ -1,0 +1,92 @@
+# Journal-wide configuration. Every name, URL, and policy knob lives here.
+journal:
+  title: "Notes in Chemical Computation"
+  abbreviation: "Notes Chem. Comput."
+  short: "NCC"
+  tagline: "An open journal for computational chemistry, simulation, and AI for science."
+  publisher: "Notes in Chemical Computation"
+  # Runs the journal and confirms every editorial decision (`accepted` label, /accept, /revise, /decline).
+  maintainer:
+    name: "Mingi Kang"
+    github: "kangmg"
+  # Screens every submission that passes the automated checks; see `review` below.
+  editor:
+    name: "AI editorial agent"
+  founded: 2026            # volume 1 = founding year
+  issn: null               # fill in if an ISSN is ever assigned
+  language: "en"           # language of the site chrome
+
+site:
+  url: "https://kangmg.github.io"
+  base: "/journal"         # GitHub project page path; "" for a custom domain root
+
+github:
+  repo: "kangmg/journal"
+  branch: "main"
+
+defaults:
+  license: "CC-BY-4.0"
+
+# Subjects are the journal's sections. Authors choose free-form tags (aliases in tags.yml); an article
+# appears under every subject that lists one of its tags, so it can sit in several subjects.
+subjects:
+  - id: electronic-structure
+    name: Electronic Structure
+    description: Density functional theory, wavefunction methods, and quantum-chemical benchmarks.
+    tags: [DFT]
+  - id: ml-potentials
+    name: Machine-Learned Potentials
+    description: Training, validating, and applying machine-learning interatomic potentials.
+    tags: [MLIP]
+  - id: simulation
+    name: Molecular Dynamics and Simulation
+    description: Molecular dynamics, Monte Carlo, and other sampling of structure and dynamics.
+    tags: [MD, Simulation]
+  - id: reactions-surfaces
+    name: Reactions, Surfaces, and Catalysis
+    description: Reaction mechanisms, transition states, surfaces, and catalysis.
+    tags: [Reaction Mechanism, Catalysis, Surface Science]
+  - id: ai-agents
+    name: AI for Chemistry and Research Agents
+    description: Machine learning for chemistry and autonomous agents that carry out computational research.
+    tags: [AI4Chem, Agents]
+  - id: software-methods
+    name: Software and Methods
+    description: Scientific software, workflows, and benchmarks of methods and tools.
+    tags: [Software, Benchmark]
+
+# Suggested in the submission form.
+seed_tags: ["Agents", "AI4Chem", "Computational Chemistry", "DFT", "MLIP", "MD", "Simulation", "Software"]
+
+translation:
+  target: "en"
+  provider: "github-models"          # OpenAI-compatible endpoint
+  base_url: "https://models.github.ai/inference"
+  model: "openai/gpt-4.1"
+  # Shown wherever a machine translation is displayed (site and PDF).
+  disclaimer: >-
+    This English version was translated from the original {language} by AI ({model}).
+    It may contain mistranslations or inaccuracies. The original-language version is the
+    version of record.
+
+# AI screening (scope and spam, not quality): posted as a public comment on each submission; advisory, the maintainer decides.
+review:
+  provider: "github-models"          # OpenAI-compatible endpoint; override with REVIEW_BASE_URL / REVIEW_MODEL / REVIEW_API_KEY
+  base_url: "https://models.github.ai/inference"
+  model: "openai/gpt-4.1"
+  max_body_chars: 60000
+
+doi:
+  enabled: true
+  provider: "zenodo"
+  sandbox: true            # true = sandbox.zenodo.org (test DOIs that never resolve)
+  delay_days: 14           # DOI is minted this many days after a version is published
+  community: null          # Zenodo community identifier, e.g. "notes-chemical-computation"
+
+comments:
+  provider: null           # "giscus" once Discussions are enabled
+  giscus:
+    repo: "kangmg/journal"
+    repo_id: ""
+    category: "Article comments"
+    category_id: ""

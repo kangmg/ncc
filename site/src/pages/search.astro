@@ -1,0 +1,30 @@
+---
+import Base from "../layouts/Base.astro";
+import { u } from "../lib/data";
+---
+<Base title="Search" current="search">
+  <link slot="head" href={u("/pagefind/pagefind-ui.css")} rel="stylesheet" />
+  <div class="wrap doc">
+    <h1 class="page-title">Search</h1>
+    <p class="lede">Full-text search across all published articles.</p>
+    <div id="search" data-bundle={u("/pagefind/")}></div>
+    <noscript><p>Search needs JavaScript. Browse the <a href={u("/articles/")}>article list</a> instead.</p></noscript>
+  </div>
+  <script is:inline define:vars={{ bundle: u("/pagefind/") }}>
+    const script = document.createElement("script");
+    script.src = bundle + "pagefind-ui.js";
+    script.onload = () => {
+      const ui = new window.PagefindUI({ element: "#search", bundlePath: bundle, showImages: false, resetStyles: false });
+      const query = new URLSearchParams(location.search).get("q");
+      if (query) ui.triggerSearch(query);
+    };
+    script.onerror = () => {
+      document.getElementById("search").textContent = "The search index is built during deployment and is not available in development.";
+    };
+    document.head.appendChild(script);
+  </script>
+</Base>
+
+<style is:global>
+  #search { --pagefind-ui-primary: var(--ink); --pagefind-ui-text: var(--text); --pagefind-ui-background: var(--surface); --pagefind-ui-border: var(--border); --pagefind-ui-tag: var(--tint); --pagefind-ui-font: var(--sans); }
+</style>

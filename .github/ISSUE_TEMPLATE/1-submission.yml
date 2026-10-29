@@ -1,0 +1,196 @@
+name: Submit a manuscript
+description: Submit a new article to Notes in Chemical Computation.
+title: "[Submission] "
+labels: ["submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for submitting. Read the [author guide](https://kangmg.github.io/journal/guide/) first.
+        A bot validates this form, converts it to `paper.yml`, and replies with a typeset preview.
+        Edit the issue to fix problems; the preview updates automatically.
+        Prefer Git? Open a pull request that adds `submissions/<short-name>/paper.yml` (plus figures) instead.
+        AI agents are welcome to prepare and submit manuscripts; see the [guide for AI agents](https://kangmg.github.io/journal/agents/).
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      placeholder: "How Far Off Is a Universal MLIP for Nb–W–O Surface Energies?"
+    validations:
+      required: true
+  - type: dropdown
+    id: article_type
+    attributes:
+      label: Article type
+      options:
+        - Research Article
+        - Letter
+        - Computational Note
+        - Software
+        - Negative Result
+        - Tutorial
+        - Perspective
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Manuscript language
+      description: "Language code (en, ko, ja, ...). Non-English articles get an AI translation into English, labelled as such."
+      value: "en"
+    validations:
+      required: true
+  - type: textarea
+    id: authors
+    attributes:
+      label: Authors
+      description: |
+        One author per line: `Name | @github | ORCID | Affiliation; Second affiliation | corresponding`.
+        Only the name is required; leave unused fields empty. At least one author needs a GitHub handle.
+      placeholder: |
+        Mingi Kang | @kangmg | 0000-0000-0000-0000 | Department of Chemistry, Example University | corresponding
+        Jane Example | @octocat | | Independent researcher |
+    validations:
+      required: true
+  - type: textarea
+    id: abstract
+    attributes:
+      label: Abstract
+      description: 50 words or more. Markdown and $math$ are allowed.
+    validations:
+      required: true
+  - type: checkboxes
+    id: tags
+    attributes:
+      label: Topic tags
+      description: Pick any that apply. Add your own below.
+      options:
+        - label: Agents
+        - label: AI4Chem
+        - label: Computational Chemistry
+        - label: DFT
+        - label: MLIP
+        - label: MD
+        - label: Simulation
+        - label: Software
+  - type: input
+    id: extra_tags
+    attributes:
+      label: Additional tags
+      description: Comma-separated free-form tags.
+      placeholder: "catalysis, phonons, benchmark"
+  - type: dropdown
+    id: format
+    attributes:
+      label: Manuscript format
+      options:
+        - Markdown sections (written below)
+        - Complete paper.yml (pasted below)
+        - Attached PDF
+        - Attached Markdown or Typst file
+    validations:
+      required: true
+  - type: textarea
+    id: manuscript
+    attributes:
+      label: Manuscript
+      description: |
+        Markdown sections: start each section with `## Section title`. Use `[@key]` for citations,
+        `$...$` for math, and drag images here (add `{#fig:label}` after an image to reference it as `@fig:label`).
+        Complete paper.yml: paste the whole file. Attached formats: leave this empty.
+      render: markdown
+  - type: textarea
+    id: files
+    attributes:
+      label: Files
+      description: Drag and drop figures, the PDF, a `.typ`/`.md` manuscript, or a `.zip` with the manuscript and its figures.
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: |
+        One per line as `key: DOI` (metadata is fetched automatically), or `key: free-text reference` when there is no DOI.
+        You can also paste BibTeX.
+      placeholder: |
+        perdew1996: 10.1103/PhysRevLett.77.3865
+        larsen2017: 10.1088/1361-648X/aa680e
+  - type: textarea
+    id: data_availability
+    attributes:
+      label: Data availability
+      description: Where can readers get inputs, outputs, and scripts?
+    validations:
+      required: true
+  - type: input
+    id: code_availability
+    attributes:
+      label: Code availability
+      placeholder: "https://github.com/you/project"
+  - type: textarea
+    id: ai_use
+    attributes:
+      label: Use of AI tools
+      description: How AI tools were used in the work or the writing, or "None".
+    validations:
+      required: true
+  - type: dropdown
+    id: ai_level
+    attributes:
+      label: AI contribution level
+      description: Substantial and agent-led work also needs the agents and an oversight statement below.
+      options:
+        - "None: no AI involvement"
+        - "Assisted: AI helped with editing, translation, or small pieces of code"
+        - "Substantial: AI did significant parts of the computation, analysis, or writing"
+        - "Agent-led: an agent planned and carried out most of the study"
+    validations:
+      required: true
+  - type: textarea
+    id: ai_agents
+    attributes:
+      label: AI agents
+      description: |
+        One per line: `Name | model | provider | roles | @github`. Roles (comma-separated): conception, literature,
+        code, computation, analysis, figures, writing, editing, translation, submission, revision.
+        The GitHub account is only needed if the agent has its own and should be allowed to post revisions.
+      placeholder: |
+        Claude Code | claude-opus-4 | Anthropic | conception, computation, analysis, writing, submission |
+  - type: textarea
+    id: ai_oversight
+    attributes:
+      label: Human oversight
+      description: What the human authors checked, and how. Be specific; say so if nothing was checked.
+  - type: input
+    id: ai_logs
+    attributes:
+      label: Agent logs
+      description: Link to agent transcripts or run logs (recommended for agent-led work).
+  - type: dropdown
+    id: license
+    attributes:
+      label: License
+      options:
+        - CC-BY-4.0
+        - CC-BY-SA-4.0
+        - CC0-1.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: doi
+    attributes:
+      label: DOI
+      options:
+        - label: Register a Zenodo DOI for this article after the grace period
+  - type: checkboxes
+    id: declarations
+    attributes:
+      label: Declarations
+      options:
+        - label: The work is original, and all authors agreed to submit it.
+          required: true
+        - label: I have the right to publish the text and figures under the chosen license.
+          required: true
+        - label: I have read the editorial policy (versions, withdrawal, AI translation, DOIs).
+          required: true
+        - label: I understand the journal takes no responsibility for disputes arising after submission, and that I must check another journal's rules before submitting this work there.
+          required: true

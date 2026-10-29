@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kangmg.github.io/journal/schema/paper.schema.json",
+  "title": "Notes in Chemical Computation manuscript (paper.yml)",
+  "type": "object",
+  "required": ["title", "article_type", "authors", "abstract", "tags", "data_availability", "ai_use"],
+  "additionalProperties": false,
+  "properties": {
+    "title": {"type": "string", "minLength": 5, "maxLength": 300},
+    "subtitle": {"type": "string"},
+    "article_type": {
+      "enum": ["research-article", "letter", "computational-note", "software", "negative-result", "tutorial", "perspective", "editorial"]
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[A-Za-z0-9]+)*$",
+      "default": "en",
+      "description": "BCP 47 code of the manuscript language. Non-English manuscripts receive an AI translation into English."
+    },
+    "authors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {"type": "string", "minLength": 2},
+          "given": {"type": "string"},
+          "family": {"type": "string"},
+          "github": {"type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$"},
+          "orcid": {"type": "string", "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX]$"},
+          "email": {"type": "string", "format": "email"},
+          "affiliations": {"type": "array", "items": {"type": ["string", "integer"]}},
+          "corresponding": {"type": "boolean"},
+          "equal_contribution": {"type": "boolean"}
+        }
+      }
+    },
+    "affiliations": {
+      "type": "object",
+      "additionalProperties": {"type": "string"},
+      "description": "Key -> affiliation text. Authors refer to keys in their affiliations list."
+    },
+    "abstract": {"type": "string", "minLength": 50},
+    "tags": {"type": "array", "minItems": 1, "maxItems": 12, "items": {"type": "string", "minLength": 2}},
+    "license": {"enum": ["CC-BY-4.0", "CC-BY-SA-4.0", "CC0-1.0"], "default": "CC-BY-4.0"},
+    "toc_graphic": {"type": "string", "description": "Path to the graphical abstract image, relative to paper.yml."},
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["title", "body"],
+        "additionalProperties": false,
+        "properties": {
+          "title": {"type": "string"},
+          "body": {"type": "string", "description": "Pandoc Markdown with $math$, [@citations], ![figures](path){#fig:label}."}
+        }
+      }
+    },
+    "body_file": {"type": "string", "pattern": "\\.(md|typ)$", "description": "Manuscript body as a Markdown or Typst file."},
+    "pdf": {"type": "string", "pattern": "\\.pdf$", "description": "Typeset manuscript supplied as a PDF."},
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z0-9_:.-]+$"},
+          "doi": {"type": "string", "pattern": "^10\\.\\d{4,9}/\\S+$"},
+          "text": {"type": "string", "description": "Free-text reference when no DOI exists."}
+        },
+        "description": "DOI entries are resolved to full metadata at build time. Other CSL-JSON fields are passed through."
+      }
+    },
+    "bibliography": {"type": "string", "pattern": "\\.(bib|json|yaml|yml)$", "description": "BibTeX or CSL-JSON file, relative to paper.yml."},
+    "data_availability": {"type": "string", "minLength": 10},
+    "code_availability": {"type": "string"},
+    "ai_use": {"type": "string", "minLength": 2, "description": "How AI tools were used, or 'None'."},
+    "ai_contributions": {
+      "type": "object",
+      "required": ["level"],
+      "additionalProperties": false,
+      "description": "Structured disclosure of AI and agent involvement. Required for agent-prepared submissions; see AGENT_GUIDE.md.",
+      "properties": {
+        "level": {
+          "enum": ["none", "assisted", "substantial", "agent-led"],
+          "description": "none: no AI. assisted: AI helped with editing or small code pieces. substantial: AI did significant parts of the computation, analysis, or writing under human direction. agent-led: an agent planned and carried out most of the study."
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "roles"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {"type": "string", "minLength": 1, "description": "Agent or tool name, e.g. 'Claude Code' or 'in-house ASE agent'."},
+              "model": {"type": "string", "description": "Underlying model and version."},
+              "provider": {"type": "string"},
+              "github": {"type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$", "description": "GitHub account the agent used to submit or revise, if it has its own."},
+              "roles": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {"enum": ["conception", "literature", "code", "computation", "analysis", "figures", "writing", "editing", "translation", "submission", "revision"]}
+              }
+            }
+          }
+        },
+        "oversight": {"type": "string", "description": "What the responsible humans checked, and how."},
+        "logs": {"type": "string", "description": "URL of agent transcripts or run logs."}
+      }
+    },
+    "competing_interests": {"type": "string", "default": "The authors declare no competing interests."},
+    "acknowledgments": {"type": "string"},
+    "funding": {"type": "string"},
+    "supporting_information": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["file", "description"],
+        "additionalProperties": false,
+        "properties": {"file": {"type": "string"}, "description": {"type": "string"}}
+      }
+    },
+    "mint_doi": {"type": "boolean", "default": true, "description": "Request a Zenodo DOI after the grace period."},
+    "changelog": {"type": "string", "description": "What changed relative to the previous version (required from v2)."}
+  },
+  "oneOf": [
+    {"required": ["sections"], "not": {"anyOf": [{"required": ["body_file"]}, {"required": ["pdf"]}]}},
+    {"required": ["body_file"], "not": {"anyOf": [{"required": ["sections"]}, {"required": ["pdf"]}]}},
+    {"required": ["pdf"], "not": {"anyOf": [{"required": ["sections"]}, {"required": ["body_file"]}]}}
+  ]
+}

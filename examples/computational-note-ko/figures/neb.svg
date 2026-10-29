@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 300" width="460" height="300" font-family="Helvetica, Arial, sans-serif" font-size="13"><rect width="460" height="300" fill="#fff"/>
+<line x1="40" y1="270" x2="430" y2="270" stroke="#333"/><line x1="40" y1="270" x2="40" y2="30" stroke="#333"/>
+<path d="M60 220 C 120 220, 150 80, 200 80 S 290 250, 340 250 L 400 250" fill="none" stroke="#20456B" stroke-width="2.5"/>
+<circle cx="60" cy="220" r="4" fill="#B5651D"/><text x="60" y="208" text-anchor="middle" fill="#222">IS 0.00 eV</text>
+<circle cx="200" cy="80" r="4" fill="#B5651D"/><text x="200" y="68" text-anchor="middle" fill="#222">TS +0.74 eV</text>
+<circle cx="340" cy="250" r="4" fill="#B5651D"/><text x="340" y="238" text-anchor="middle" fill="#222">FS −0.31 eV</text>
+<text x="235" y="292" text-anchor="middle" fill="#222">Reaction coordinate</text><text transform="translate(22 150) rotate(-90)" text-anchor="middle" fill="#222">Energy (eV)</text></svg>

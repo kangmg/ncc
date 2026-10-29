@@ -1,0 +1,10 @@
+---
+import Base from "../layouts/Base.astro";
+import { pages } from "../lib/data";
+---
+<Base title="Why this journal" current="why" description="Why Notes in Chemical Computation exists, how screening works, and what it is not.">
+  <div class="wrap doc">
+    <h1 class="page-title">Why this journal</h1>
+    <div class="prose" style="font-family:var(--sans);font-size:1rem" set:html={pages.why ?? "<p>Not built yet.</p>"} />
+  </div>
+</Base>

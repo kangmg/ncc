@@ -1,0 +1,42 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArticleList from "../../components/ArticleList.astro";
+import { published, latest, journal, subjects, slug, u, type Article, type Subject } from "../../lib/data";
+
+export function getStaticPaths() {
+  const names = new Map<string, string>();
+  for (const t of journal.seed_tags) names.set(slug(t), t);
+  for (const s of subjects) for (const t of s.tags) names.set(slug(t), t);
+  for (const a of published()) for (const t of latest(a).tags) names.set(slug(t), t);
+  return [...names.entries()].map(([key, name]) => ({
+    params: { tag: key },
+    props: {
+      name,
+      items: published().filter((a) => latest(a).tags.some((t) => slug(t) === key)),
+      inSubjects: subjects.filter((s) => s.tags.some((t) => slug(t) === key)),
+    },
+  }));
+}
+
+interface Props {
+  name: string;
+  items: Article[];
+  inSubjects: Subject[];
+}
+const { name, items, inSubjects } = Astro.props;
+---
+<Base title={`Keyword: ${name}`} current="subjects">
+  <div class="wrap">
+    <ol class="crumbs" aria-label="Breadcrumb">
+      <li><a href={u("/")}>Home</a></li>
+      <li><a href={u("/subjects/")}>Subjects</a></li>
+      <li aria-current="page">{name}</li>
+    </ol>
+    <h1 class="page-title">{name}</h1>
+    <p class="lede">
+      {items.length} article{items.length === 1 ? "" : "s"} with this keyword.
+      {inSubjects.length > 0 && <>Part of {inSubjects.map((s, i) => <>{i > 0 && ", "}<a href={u(`/subjects/${s.id}/`)}>{s.name}</a></>)}.</>}
+    </p>
+    <ArticleList items={items} empty={`No articles use the keyword ${name} yet.`} />
+  </div>
+</Base>

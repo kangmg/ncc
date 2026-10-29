@@ -1,0 +1,13 @@
+---
+interface Props {
+  name: "lock-open" | "file" | "chevron" | "arrow" | "alert";
+}
+const { name } = Astro.props;
+---
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {name === "lock-open" && (<><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.75-1.4" /></>)}
+  {name === "file" && (<><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z" /><path d="M14 3v5h5M9 13h6M9 17h4" /></>)}
+  {name === "chevron" && <path d="m9 6 6 6-6 6" />}
+  {name === "arrow" && <path d="M5 12h14m-6-6 6 6-6 6" />}
+  {name === "alert" && (<><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /><path d="M12 9v4M12 17h.01" /></>)}
+</svg>

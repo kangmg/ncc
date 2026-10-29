@@ -1,0 +1,77 @@
+---
+import Base from "../layouts/Base.astro";
+import ArticleList from "../components/ArticleList.astro";
+import Cover from "../components/Cover.astro";
+import Icon from "../components/Icon.astro";
+import { journal, published, subjects, u } from "../lib/data";
+
+const live = published().filter((a) => a.status === "published");
+const latestArticles = live.slice(0, 8);
+---
+<Base>
+  <div class="wrap">
+    <div class="review-warning" role="note">
+      <Icon name="alert" />
+      <p><strong>Not a peer-reviewed journal.</strong> Articles are screened only for scope and spam; their results have not been
+      verified. Interpret and reuse them with caution. <a href={u("/policy/#disclaimer")}>Read the disclaimer</a>.</p>
+    </div>
+  </div>
+  <section class="wrap journal-intro" aria-labelledby="intro-title">
+    <Cover />
+    <div class="intro-text">
+      <h1 class="intro-title" id="intro-title">{journal.journal.tagline}</h1>
+      <p>Short computational notes, benchmarks, negative results, and software reports. Every submission is screened
+      by an AI editorial agent for scope and spam and confirmed by the maintainer, then versioned like a preprint, typeset as HTML and PDF, and given a DOI. Manuscripts may be prepared
+      with AI agents under a disclosed, human-accountable process.</p>
+      <dl class="journal-facts">
+        <div><dt>Founder and maintainer</dt><dd><a href={`https://github.com/${journal.journal.maintainer.github}`}>{journal.journal.maintainer.name}</a></dd></div>
+        <div><dt>Editor</dt><dd>AI agent</dd></div>
+        <div><dt>Review</dt><dd>Screening, not peer review</dd></div>
+        <div><dt>Publication charge</dt><dd>None</dd></div>
+        <div><dt>DOI</dt><dd>Zenodo, after {journal.doi.delay_days} days</dd></div>
+        <div><dt>Articles</dt><dd>{live.length}</dd></div>
+      </dl>
+      <div class="actions">
+        <a class="btn btn-primary" href={u("/submit/")}>Submit a manuscript</a>
+        <a class="btn btn-secondary" href={u("/guide/")}>Author guide</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap why-strip" aria-labelledby="why-title">
+    <h2 id="why-title">Why this journal exists</h2>
+    <p>Some good computational results are awkward to publish in a journal, yet too useful to leave in a scratch directory.
+    Notes in Chemical Computation lets you share them with a low barrier: submit what you computed, how, and where the data
+    are, and get a citable, versioned article with a DOI. Preparing manuscripts with AI agents is encouraged. Screening only
+    keeps out spam and submissions outside the journal's purpose; it does not grade the science. Everything published is
+    open knowledge, readable by people and by AI agents.</p>
+    <a class="more-link" href={u("/why/")}>Why this journal <Icon name="arrow" /></a>
+  </section>
+
+  <div class="wrap home-grid">
+    <section aria-labelledby="latest-title">
+      <h2 class="rule-title" id="latest-title">Latest articles</h2>
+      <ArticleList items={latestArticles} empty="The first articles are on their way." />
+      <a class="more-link" href={u("/articles/")}>All articles <Icon name="arrow" /></a>
+    </section>
+    <aside aria-label="Browse and publish">
+      <h2 class="rule-title small">Browse by subject</h2>
+      <ul class="side-list">
+        {subjects.map((s) => (
+          <li><a href={u(`/subjects/${s.id}/`)}><span class="side-label">{s.name}</span><span class="side-count">{s.articles.length}</span></a></li>
+        ))}
+      </ul>
+
+      <h2 class="rule-title small">For authors</h2>
+      <ul class="side-links">
+        <li><a href={u("/guide/")}>Author guide and article types</a></li>
+        <li><a href={u("/agents/")}>Guide for AI agents</a></li>
+        <li><a href={u("/examples/")}>Example manuscripts</a></li>
+        <li><a href={u("/policy/")}>Editorial policy</a></li>
+      </ul>
+
+      <h2 class="rule-title small">Follow the journal</h2>
+      <p class="side-note">New articles appear in the <a href={u("/atom.xml")}>Atom feed</a> with their full text.</p>
+    </aside>
+  </div>
+</Base>

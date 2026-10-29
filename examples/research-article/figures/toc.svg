@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" font-family="Helvetica, Arial, sans-serif">
+<rect width="640" height="320" fill="#F4F1EA"/>
+<circle cx="60" cy="250" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="90" cy="250" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="120" cy="250" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="150" cy="250" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="180" cy="250" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="210" cy="250" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="240" cy="250" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="270" cy="250" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="300" cy="250" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="75" cy="224" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="105" cy="224" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="135" cy="224" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="165" cy="224" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="195" cy="224" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="225" cy="224" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="255" cy="224" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="285" cy="224" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="315" cy="224" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="60" cy="198" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="90" cy="198" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="120" cy="198" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="150" cy="198" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="180" cy="198" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="210" cy="198" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="240" cy="198" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="270" cy="198" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="300" cy="198" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="75" cy="172" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="105" cy="172" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="135" cy="172" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="165" cy="172" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="195" cy="172" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="225" cy="172" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="255" cy="172" r="12" fill="#B5651D" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="285" cy="172" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="315" cy="172" r="12" fill="#20456B" stroke="#ffffff" stroke-width="1.5"/>
+<path d="M370 160 C 420 120, 470 120, 520 160" fill="none" stroke="#333" stroke-width="2.5" marker-end="url(#a)"/>
+<defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#333"/></marker></defs>
+<text x="445" y="105" text-anchor="middle" font-size="20" fill="#222">γ(MLIP) ≈ 0.86 γ(PBE)</text>
+<rect x="400" y="185" width="190" height="80" rx="6" fill="#ffffff" stroke="#D8D3C6"/>
+<text x="495" y="218" text-anchor="middle" font-size="17" fill="#20456B">36 facets</text><text x="495" y="245" text-anchor="middle" font-size="15" fill="#555">MAE 0.26 J m⁻²</text>
+</svg>

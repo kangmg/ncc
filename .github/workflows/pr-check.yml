@@ -1,0 +1,94 @@
+name: Pull request check
+
+on:
+  pull_request:
+    paths:
+      - "submissions/**"
+      - "papers/**"
+      - "examples/**"
+      - "templates/**"
+      - "schema/**"
+      - "tools/**"
+
+permissions:
+  contents: read
+  models: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-journal
+
+      - name: Changed manuscripts
+        id: changed
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git diff --name-only "$BASE"...HEAD -- submissions papers > build-changed.txt || true
+          cat build-changed.txt
+          if grep -vqE '^(submissions|papers)/[A-Za-z0-9._/-]+$' build-changed.txt; then
+            echo "::error::file names may only contain letters, digits, '.', '_', '-', and '/'"
+            exit 1
+          fi
+          dirs=$(grep -oE '^(submissions/[A-Za-z0-9._-]+|papers/[0-9]{4}-[0-9]{4})' build-changed.txt | sort -u | tr '\n' ' ')
+          echo "dirs=$dirs" >> "$GITHUB_OUTPUT"
+
+      - name: Scope
+        if: github.event.pull_request.user.login != github.repository_owner
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          outside=$(git diff --name-only "$BASE"...HEAD | grep -vE '^(submissions/[A-Za-z0-9._-]+/|papers/[0-9]{4}-[0-9]{4}/v[0-9]+/)' || true)
+          if [ -n "$outside" ]; then
+            echo "::error::pull requests from authors and agents may only change submissions/<name>/ or papers/<id>/v<n>/:"
+            echo "$outside"
+            exit 1
+          fi
+
+      - name: Authorship
+        if: github.event.pull_request.user.login != github.repository_owner
+        env:
+          LOGIN: ${{ github.event.pull_request.user.login }}
+        run: xargs -a build-changed.txt uv run jtools authorship "$LOGIN"
+
+      - name: Unit tests
+        run: uv run pytest -q
+
+      - name: Validate
+        run: uv run jtools validate --resolve-dois ${{ steps.changed.outputs.dirs }}
+
+      - name: Typeset changed manuscripts
+        if: steps.changed.outputs.dirs != ''
+        run: |
+          mkdir -p build/pr-pdf
+          for d in ${{ steps.changed.outputs.dirs }}; do
+            name=$(echo "$d" | tr '/' '-')
+            uv run jtools pdf "$d" --out "build/pr-pdf/$name.pdf"
+          done
+
+      - name: AI screening (job summary)
+        if: steps.changed.outputs.dirs != ''
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          for d in ${{ steps.changed.outputs.dirs }}; do
+            target="$d"
+            case "$d" in papers/*) target=$(printf '%s\n' "$d"/v*/ | sort -V | tail -n1) ;; esac
+            if uv run jtools review "$target" --report build/review.md; then
+              { echo "## $target"; cat build/review.md; } >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "## $target: AI screening could not run; see the log." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+      - name: Upload PDFs
+        if: steps.changed.outputs.dirs != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr-${{ github.event.number }}-pdfs
+          path: build/pr-pdf
+          retention-days: 30

@@ -1,0 +1,116 @@
+name: Submission preview
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  models: read
+
+concurrency:
+  group: preview-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    # Issues created through the API by non-collaborators lose their labels, so agents can
+    # also mark the kind with a title prefix; the job then adds the matching label.
+    # A `/review` comment from the issue author or the maintainer re-runs the AI screening.
+    if: >-
+      (github.event_name == 'issues' ||
+       (!github.event.issue.pull_request && startsWith(github.event.comment.body, '/review') &&
+        (github.event.comment.user.login == github.event.issue.user.login ||
+         github.event.comment.author_association == 'OWNER'))) &&
+      (contains(github.event.issue.labels.*.name, 'submission') ||
+       contains(github.event.issue.labels.*.name, 'revision') ||
+       contains(github.event.issue.labels.*.name, 'withdrawal') ||
+       startsWith(github.event.issue.title, '[Submission]') ||
+       startsWith(github.event.issue.title, '[Revision]') ||
+       startsWith(github.event.issue.title, '[Withdrawal]'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-journal
+
+      # The issue body is untrusted: it is read from the event file by Python and never
+      # interpolated into a shell command.
+      - name: Convert, validate, and typeset
+        id: preview
+        run: |
+          result=$(uv run jtools issue preview --event "$GITHUB_EVENT_PATH" --out build/preview --report build/report.md)
+          echo "$result"
+          {
+            echo "ok=$(echo "$result" | jq -r .ok)"
+            echo "pdf=$(echo "$result" | jq -r .pdf)"
+            echo "kind=$(echo "$result" | jq -r .kind)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload preview PDF
+        id: upload
+        if: steps.preview.outputs.pdf == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: preview-issue-${{ github.event.issue.number }}
+          path: build/preview/preview.pdf
+          retention-days: 30
+
+      - name: Post or update the preview comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          OK: ${{ steps.preview.outputs.ok }}
+          KIND: ${{ steps.preview.outputs.kind }}
+        run: |
+          set -euo pipefail
+          if [ -n "${ARTIFACT_URL:-}" ]; then
+            printf '\nTypeset preview (PDF): [download the workflow artifact](%s)\n' "$ARTIFACT_URL" >> build/report.md
+          fi
+          existing=$(gh api "repos/$REPO/issues/$NUMBER/comments" --paginate \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- journal-preview -->"))) | .id' | head -n1)
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" -F body=@build/report.md > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$NUMBER/comments" -F body=@build/report.md > /dev/null
+          fi
+          case "$KIND" in
+            submission|revision|withdrawal) gh issue edit "$NUMBER" --repo "$REPO" --add-label "$KIND" || true ;;
+          esac
+          if [ "$OK" = "true" ]; then
+            gh issue edit "$NUMBER" --repo "$REPO" --add-label "ready-for-review" --remove-label "needs-changes" || true
+          else
+            gh issue edit "$NUMBER" --repo "$REPO" --add-label "needs-changes" --remove-label "ready-for-review" || true
+          fi
+
+      # The first passing preview gets AI screening; later ones only on a `/review` comment,
+      # so editing a typo does not spend a model call. The manuscript is passed to the model as data.
+      - name: AI screening
+        if: steps.preview.outputs.ok == 'true' && steps.preview.outputs.kind != 'withdrawal'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          existing=$(gh api "repos/$REPO/issues/$NUMBER/comments" --paginate \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- journal-ai-review -->"))) | .id' | head -n1)
+          if [ -n "$existing" ] && [ "$EVENT" != "issue_comment" ]; then
+            echo "A screening report exists; comment /review to request a new one."
+            exit 0
+          fi
+          if ! uv run jtools review build/preview/paper --report build/review.md; then
+            printf '%s\n\n%s\n' '<!-- journal-ai-review -->' \
+              "AI screening could not run this time (see the workflow log). The maintainer will screen the submission; comment \`/review\` to retry." > build/review.md
+          fi
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" -F body=@build/review.md > /dev/null
+          else
+            gh api -X POST "repos/$REPO/issues/$NUMBER/comments" -F body=@build/review.md > /dev/null
+          fi

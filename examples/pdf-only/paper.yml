@@ -1,0 +1,17 @@
+title: "Phonon Band Structures of Simple Metals with a Universal MLIP (PDF Submission Example)"
+article_type: letter
+language: en
+authors:
+  - name: Mingi Kang
+    github: kangmg
+    affiliations: ["Department of Chemistry, Example University"]
+    corresponding: true
+abstract: |
+  Authors who already have a typeset manuscript can submit the PDF alone. The
+  journal still requires the metadata in this file (title, authors, abstract, tags,
+  statements) so that the article page, search, citation data, and DOI record can be
+  generated. The PDF is shown on the article page with a journal cover page.
+tags: [MLIP, phonon, Benchmark]
+pdf: manuscript.pdf
+data_availability: "Example only; no data."
+ai_use: "None."

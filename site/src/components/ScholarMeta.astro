@@ -1,0 +1,42 @@
+---
+import { type Article, type Version, journal } from "../lib/data";
+
+interface Props {
+  article: Article;
+  version: Version;
+}
+const { article, version } = Astro.props;
+const pdfUrl = version.pdf ? new URL(version.pdf, Astro.site).href : null;
+const date = version.published.replace(/-/g, "/");
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  headline: version.title,
+  inLanguage: version.language,
+  datePublished: version.published,
+  author: version.authors.map((a) => ({
+    "@type": "Person",
+    name: a.name,
+    ...(a.orcid ? { identifier: `https://orcid.org/${a.orcid}` } : {}),
+  })),
+  isPartOf: { "@type": "Periodical", name: journal.journal.title },
+  keywords: version.tags.join(", "),
+  license: `https://spdx.org/licenses/${version.license}.html`,
+  url: version.url,
+  ...(version.doi ? { identifier: `https://doi.org/${version.doi}` } : {}),
+};
+---
+<meta name="citation_title" content={version.title} />
+{version.authors.map((a) => <meta name="citation_author" content={a.name} />)}
+<meta name="citation_publication_date" content={date} />
+<meta name="citation_online_date" content={date} />
+<meta name="citation_journal_title" content={journal.journal.title} />
+<meta name="citation_journal_abbrev" content={journal.journal.abbreviation} />
+<meta name="citation_volume" content={String(article.volume)} />
+<meta name="citation_firstpage" content={article.number} />
+<meta name="citation_language" content={version.language} />
+<meta name="citation_abstract_html_url" content={version.url} />
+{pdfUrl && <meta name="citation_pdf_url" content={pdfUrl} />}
+{version.doi && <meta name="citation_doi" content={version.doi} />}
+{version.tags.map((t) => <meta name="citation_keywords" content={t} />)}
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

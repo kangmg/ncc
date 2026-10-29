@@ -1,0 +1,31 @@
+name: Set up journal toolchain
+description: uv + Python deps, pandoc, Typst, and CJK fonts for the jtools pipeline.
+inputs:
+  pandoc-version:
+    default: "3.12.1"
+  typst-version:
+    default: "0.15.1"
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v10
+      with:
+        enable-cache: true
+    - name: Install pandoc, Typst, and fonts
+      shell: bash
+      env:
+        PANDOC_VERSION: ${{ inputs.pandoc-version }}
+        TYPST_VERSION: ${{ inputs.typst-version }}
+      run: |
+        set -euo pipefail
+        curl -fsSL -o /tmp/pandoc.deb "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb"
+        sudo dpkg -i /tmp/pandoc.deb
+        curl -fsSL "https://github.com/typst/typst/releases/download/v${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" | tar -xJ -C /tmp
+        sudo install /tmp/typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq fonts-noto-cjk fonts-liberation > /dev/null
+        pandoc --version | head -1
+        typst --version
+    - name: Install Python dependencies
+      shell: bash
+      run: uv sync --frozen

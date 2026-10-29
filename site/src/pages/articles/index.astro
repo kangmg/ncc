@@ -1,0 +1,47 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArticleList from "../../components/ArticleList.astro";
+import { published, latest } from "../../lib/data";
+
+const items = published();
+const tagCounts = new Map<string, number>();
+for (const a of items) for (const t of latest(a).tags) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([t]) => t);
+---
+<Base title="Articles" current="articles">
+  <div class="wrap">
+    <h1 class="page-title">Articles</h1>
+    <p class="lede">{items.length} article{items.length === 1 ? "" : "s"}, newest first.</p>
+    {tags.length > 0 && (
+      <div class="filters" role="group" aria-label="Filter by tag" data-filters>
+        <button type="button" aria-pressed="true" data-tag="">All</button>
+        {tags.map((t) => <button type="button" aria-pressed="false" data-tag={t}>{t}</button>)}
+      </div>
+    )}
+    <p class="muted" aria-live="polite" data-filter-status></p>
+    <div data-filter-list>
+      <ArticleList items={items} filterable />
+    </div>
+  </div>
+</Base>
+
+<script>
+  const group = document.querySelector<HTMLElement>("[data-filters]");
+  const status = document.querySelector<HTMLElement>("[data-filter-status]");
+  if (group && status) {
+    const rows = document.querySelectorAll<HTMLElement>("[data-filter-list] [data-tags]");
+    group.addEventListener("click", (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>("button[data-tag]");
+      if (!button) return;
+      const tag = button.dataset.tag ?? "";
+      group.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+      let shown = 0;
+      rows.forEach((row) => {
+        const match = !tag || (row.dataset.tags ?? "").split("|").includes(tag);
+        row.hidden = !match;
+        if (match) shown++;
+      });
+      status.textContent = tag ? `${shown} article${shown === 1 ? "" : "s"} tagged ${tag}` : "";
+    });
+  }
+</script>

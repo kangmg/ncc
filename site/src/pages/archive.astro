@@ -1,0 +1,26 @@
+---
+import Base from "../layouts/Base.astro";
+import ArticleList from "../components/ArticleList.astro";
+import { published } from "../lib/data";
+
+const byVolume = new Map<number, ReturnType<typeof published>>();
+for (const a of published()) {
+  const list = byVolume.get(a.volume) ?? [];
+  list.push(a);
+  byVolume.set(a.volume, list);
+}
+const volumes = [...byVolume.entries()].sort((a, b) => b[0] - a[0]);
+---
+<Base title="Archive" current="archive">
+  <div class="wrap">
+    <h1 class="page-title">Archive</h1>
+    <p class="lede">Articles are published continuously. Each calendar year is one volume; article numbers run within the year.</p>
+    {volumes.length === 0 && <p class="empty">No volumes yet.</p>}
+    {volumes.map(([volume, items]) => (
+      <section aria-labelledby={`vol-${volume}`}>
+        <h2 class="section-title" id={`vol-${volume}`}>Volume {volume} ({items[0].year}) · {items.length} article{items.length === 1 ? "" : "s"}</h2>
+        <ArticleList items={[...items].sort((a, b) => a.number.localeCompare(b.number))} />
+      </section>
+    ))}
+  </div>
+</Base>

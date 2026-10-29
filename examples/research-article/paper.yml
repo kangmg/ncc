@@ -1,0 +1,89 @@
+title: "How Far Off Is a Universal MLIP for Nb–W–O Surface Energies? A Small Benchmark"
+article_type: research-article
+language: en
+authors:
+  - name: Mingi Kang
+    given: Mingi
+    family: Kang
+    github: kangmg
+    affiliations: [1]
+    corresponding: true
+  - name: Jane Example
+    github: octocat
+    affiliations: [1, 2]
+affiliations:
+  1: "Department of Chemistry, Example University, Seoul, Republic of Korea"
+  2: "Independent researcher"
+abstract: |
+  Universal machine-learning interatomic potentials (MLIPs) are attractive for
+  screening oxide surfaces, but their accuracy for surface energies of mixed
+  transition-metal oxides is rarely reported. We compare a universal MLIP against
+  PBE for 36 low-index facets of Nb, W, and Nb–W–O slabs. The MLIP systematically
+  underestimates surface energies by about 14% (MAE 0.26 J m$^{-2}$) while preserving the
+  facet ranking. A single linear rescaling removes most of the bias. **This is an
+  example manuscript: the numbers are illustrative and exist to show the format.**
+tags: [MLIP, DFT, Surface Science, Benchmark]
+license: CC-BY-4.0
+toc_graphic: figures/toc.svg
+sections:
+  - title: Introduction
+    body: |
+      Universal MLIPs trained on large DFT databases [@batatia2024] promise
+      near-DFT accuracy at a fraction of the cost. Surface energies are a demanding
+      test because training sets are dominated by bulk structures. Here we ask a
+      narrow question: is the error on Nb–W–O surfaces small enough for facet screening?
+  - title: Methods
+    body: |
+      Reference energies were computed with PBE [@perdew1996] in VASP
+      [@kresse1996]; slabs were built and relaxed with ASE [@larsen2017]. The surface
+      energy of a symmetric slab is
+
+      $$
+      \gamma = \frac{E_\text{slab} - n E_\text{bulk}}{2A},
+      $$
+
+      where $n$ is the number of bulk formula units and $A$ the surface area.
+      Table @tbl:setup summarises the settings.
+
+      | Setting | PBE | MLIP |
+      |---|---|---|
+      | Cutoff / model | 520 eV | universal, medium |
+      | k-point density | 0.25 Å$^{-1}$ | n/a |
+      | Force threshold | 0.02 eV Å$^{-1}$ | 0.02 eV Å$^{-1}$ |
+
+      : Computational settings. {#tbl:setup}
+  - title: Results and Discussion
+    body: |
+      Figure @fig:parity compares the two methods. All points fall below the
+      parity line; a least-squares fit gives $\gamma_\text{MLIP} \approx 0.86\,\gamma_\text{PBE}$
+      with a mean absolute error of 0.26 J m$^{-2}$. The facet ranking is preserved
+      (Spearman $\rho = 0.97$), so the MLIP is usable for ranking but not for absolute values.
+
+      ![Parity plot of MLIP versus PBE surface energies for 36 facets (illustrative data).](figures/parity.svg){#fig:parity width=70%}
+  - title: Conclusions
+    body: |
+      A universal MLIP ranks Nb–W–O facets reliably but underestimates absolute
+      surface energies by roughly 14%. A linear correction fitted to a handful of DFT
+      points is a cheap fix for screening workflows.
+references:
+  - id: batatia2024
+    doi: 10.48550/arXiv.2401.00096
+  - id: perdew1996
+    doi: 10.1103/PhysRevLett.77.3865
+  - id: kresse1996
+    doi: 10.1103/PhysRevB.54.11169
+  - id: larsen2017
+    doi: 10.1088/1361-648X/aa680e
+data_availability: "Structures, inputs, and analysis scripts: https://github.com/kangmg/NbWO-growth (illustrative link)."
+code_availability: "https://github.com/kangmg/NbWO-growth"
+ai_use: "An AI assistant drafted plotting code; all numbers and text were checked by the authors."
+ai_contributions:
+  level: assisted
+  agents:
+    - name: Claude Code
+      provider: Anthropic
+      roles: [code, figures]
+  oversight: "The authors checked the plotted values against the computed surface energies."
+competing_interests: "The authors declare no competing interests."
+acknowledgments: "We thank the open-source ASE community."
+mint_doi: true

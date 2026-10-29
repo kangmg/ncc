@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import { subjects, byId, latest, articlePath, u, slug } from "../../lib/data";
+---
+<Base title="Subjects" current="subjects" description="Browse articles by subject.">
+  <div class="wrap">
+    <h1 class="page-title">Subjects</h1>
+    <p class="lede">The journal's sections. An article appears under every subject that matches one of its keywords.</p>
+    <div class="subject-grid">
+      {subjects.map((s) => {
+        const recent = s.articles.slice(0, 3).map(byId).filter((a) => a !== undefined);
+        return (
+          <section class="subject-card" aria-labelledby={`s-${s.id}`}>
+            <h2 id={`s-${s.id}`}><a href={u(`/subjects/${s.id}/`)}>{s.name}</a></h2>
+            <p>{s.description}</p>
+            <span class="subject-count">{s.articles.length} article{s.articles.length === 1 ? "" : "s"} · Keywords:{" "}
+              {s.tags.map((t, i) => <>{i > 0 && ", "}<a href={u(`/tags/${slug(t)}/`)}>{t}</a></>)}
+            </span>
+            {recent.length > 0 && (
+              <ul class="subject-recent">
+                {recent.map((a) => <li><a href={articlePath(a)}>{latest(a).translation?.title ?? latest(a).title}</a></li>)}
+              </ul>
+            )}
+          </section>
+        );
+      })}
+    </div>
+  </div>
+</Base>

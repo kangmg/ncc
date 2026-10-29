@@ -1,0 +1,45 @@
+---
+import { journal, currentVolume } from "../lib/data";
+
+const volume = currentVolume();
+const words = journal.journal.title.split(" ");
+const lines: string[] = [];
+for (const word of words) {
+  const last = lines.at(-1);
+  if (last !== undefined && (last + " " + word).length <= 11) lines[lines.length - 1] = `${last} ${word}`;
+  else lines.push(word);
+}
+const rings = [14, 28, 42, 56, 70];
+const agentNodes = [
+  { x: 88, y: 214 },
+  { x: 110, y: 200 },
+  { x: 132, y: 214 },
+  { x: 110, y: 230 },
+];
+const agentEdges: [number, number][] = [[0, 1], [1, 2], [2, 3], [3, 0], [1, 3]];
+---
+<svg class="cover" viewBox="0 0 220 293" role="img" aria-label={`Cover of ${journal.journal.title}, volume ${volume.number}, ${volume.year}: an open padlock whose shackle traces a reaction path through a saddle point, with an agent network inside`}>
+  <rect width="220" height="293" fill="#244c76" />
+  <rect width="220" height="6" fill="#d7ae62" />
+  <g transform="translate(0 14)">
+  <g fill="none" stroke="#b4cbee" stroke-width="0.8">
+    {rings.map((r, i) => (
+      <ellipse cx="110" cy="214" rx={r * 1.45} ry={r * 0.78} stroke-opacity={0.42 - i * 0.07} />
+    ))}
+  </g>
+  <path d="M84 186 V150 A26 26 0 0 1 136 150 V160" fill="none" stroke="#d7ae62" stroke-width="7" stroke-linecap="round" />
+  <path d="M84 186 V150 A26 26 0 0 1 136 150 V160" fill="none" stroke="#244c76" stroke-width="1.6" stroke-dasharray="2.5 3" stroke-linecap="round" />
+  <circle cx="110" cy="124" r="4" fill="#ffffff" />
+  <rect x="68" y="184" width="84" height="58" rx="7" fill="#244c76" stroke="#d7ae62" stroke-width="3" />
+  <g stroke="#b4cbee" stroke-width="1.4">
+    {agentEdges.map(([a, b]) => <line x1={agentNodes[a].x} y1={agentNodes[a].y} x2={agentNodes[b].x} y2={agentNodes[b].y} />)}
+  </g>
+  {agentNodes.map((n, i) => <circle cx={n.x} cy={n.y} r={i === 1 ? 5 : 3.6} fill={i === 1 ? "#d7ae62" : "#ffffff"} />)}
+  </g>
+  <text x="18" y="34" fill="#d6e2ef" font-family="Source Sans 3 Variable, sans-serif" font-size="9" letter-spacing="1.4">VOLUME {volume.number} · {volume.year}</text>
+  {lines.map((line, i) => (
+    <text x="18" y={66 + i * 26} fill="#ffffff" font-family="Newsreader Variable, Georgia, serif" font-size="23" font-weight="520">{line}</text>
+  ))}
+  <text x="18" y="276" fill="#d7ae62" font-family="Source Sans 3 Variable, sans-serif" font-size="8.5" font-weight="700" letter-spacing="1.3">OPEN ACCESS</text>
+  <text x="202" y="276" text-anchor="end" fill="#d6e2ef" font-family="Source Sans 3 Variable, sans-serif" font-size="8.5" letter-spacing="1.3">HUMANS + AGENTS</text>
+</svg>

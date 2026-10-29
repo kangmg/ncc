@@ -1,0 +1,13 @@
+# Canonical tag -> aliases (case-insensitive). Unknown tags are kept as written.
+Agents: [agent, agents, "llm agent", "llm agents", agentic, "ai agent"]
+AI4Chem: [ai4chemistry, "ai for chemistry", "ai4science", "machine learning", ml, "deep learning"]
+Computational Chemistry: [compchem, "comp chem", "computational chemistry", "quantum chemistry"]
+DFT: ["density functional theory", dft]
+MLIP: ["machine learning potential", "machine-learning potential", "ml potential", "mlff", "machine learning force field", "interatomic potential", "universal potential"]
+MD: ["molecular dynamics", aimd, md]
+Simulation: [simulation, simulations, "monte carlo", kmc]
+Software: [software, tool, tooling, package, library, "open source"]
+Catalysis: [catalysis, catalyst, catalysts]
+Surface Science: [surface, surfaces, slab, adsorption]
+Benchmark: [benchmark, benchmarking]
+Reaction Mechanism: ["reaction mechanism", mechanism, "transition state", neb]

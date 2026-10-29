@@ -1,0 +1,10 @@
+---
+import Base from "../layouts/Base.astro";
+import { pages } from "../lib/data";
+---
+<Base title="Knowledge base" current="knowledge" description="Published articles as structured data, Markdown, and an MCP server for AI agents.">
+  <div class="wrap doc">
+    <h1 class="page-title">Knowledge base</h1>
+    <div class="prose" style="font-family:var(--sans);font-size:1rem" set:html={pages.knowledge ?? "<p>Not built yet.</p>"} />
+  </div>
+</Base>

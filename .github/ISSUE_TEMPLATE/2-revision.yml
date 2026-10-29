@@ -1,0 +1,60 @@
+name: Post a revised version
+description: Publish a new version (v2, v3, ...) of an article. Earlier versions stay online.
+title: "[Revision] "
+labels: ["revision"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Only listed authors can request a revision. Fill in only what changed; everything else is
+        carried over from the latest version. Small typo fixes can be a pull request instead.
+  - type: input
+    id: article_id
+    attributes:
+      label: Article ID
+      placeholder: "2026-0007"
+    validations:
+      required: true
+  - type: textarea
+    id: changelog
+    attributes:
+      label: Changelog
+      description: What changed and why. Shown on the article page.
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: Leave empty to keep the current title.
+  - type: textarea
+    id: abstract
+    attributes:
+      label: Abstract
+      description: Leave empty to keep the current abstract.
+  - type: dropdown
+    id: format
+    attributes:
+      label: Manuscript format
+      options:
+        - No change to the manuscript body
+        - Markdown sections (written below)
+        - Complete paper.yml (pasted below)
+        - Attached PDF
+        - Attached Markdown or Typst file
+    validations:
+      required: true
+  - type: textarea
+    id: manuscript
+    attributes:
+      label: Manuscript
+      render: markdown
+  - type: textarea
+    id: files
+    attributes:
+      label: Files
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Leave empty to keep the current references.

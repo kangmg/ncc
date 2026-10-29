@@ -1,0 +1,65 @@
+title: "Notes in Chemical Computation: A Journal for the Calculations That Never Became Papers"
+article_type: editorial
+language: en
+authors:
+  - name: Mingi Kang
+    given: Mingi
+    family: Kang
+    github: kangmg
+    corresponding: true
+abstract: |
+  Many careful calculations end up in a scratch directory: a benchmark run to
+  settle a doubt, a mechanism explored on a weekend, a tool written for one project.
+  Notes in Chemical Computation gives this work a citable, versioned home. Submissions
+  arrive as GitHub issues or pull requests, are checked automatically, and are
+  published after a brief screening with a persistent identifier. This editorial
+  describes the scope, the submission format, and the policies on versions,
+  withdrawal, translation, and DOIs.
+tags: [Computational Chemistry, Software, Agents]
+license: CC-BY-4.0
+sections:
+  - title: Why another venue
+    body: |
+      Conventional journals expect a complete story. Side projects rarely have
+      one, yet they often contain the most reusable pieces of computational work:
+      validated inputs, honest negative results, and small tools. A preprint server
+      is one answer, but it offers little structure for short computational notes and
+      none for code-first reports. This journal sits between a lab notebook and a
+      full paper.
+  - title: Scope
+    body: |
+      We welcome computational chemistry, density functional theory, machine-learning
+      interatomic potentials, molecular dynamics and other simulation, AI for
+      chemistry, research agents, and scientific software. Authors choose free-form
+      keywords, and the journal files each article under every subject its
+      keywords match, so a study of a machine-learned potential for a surface
+      reaction appears in both subjects.
+  - title: How submission works
+    body: |
+      A manuscript is a single `paper.yml` file with required metadata (title,
+      authors, abstract, tags, data and AI-use statements) and a body written as
+      Markdown sections, a Markdown or Typst file, or a finished PDF. Authors either
+      open a submission issue or send a pull request. An automated check validates
+      the file and posts a typeset preview, and an AI editorial agent posts a
+      public screening report that checks scope and keeps out spam; it does
+      not grade the research. The maintainer reads both and makes
+      the decision; acceptance opens a pull request, and merging it publishes the
+      article as HTML and PDF.
+  - title: Versions, withdrawal, and DOIs
+    body: |
+      Articles are versioned like preprints. Authors can post revised versions with
+      a changelog; every version stays readable. An article can be withdrawn, in
+      which case its page keeps the title, authors, dates, and the reason. DOIs are
+      registered through Zenodo after a grace period so that early corrections do not
+      create a trail of identifiers. Each version receives its own DOI, and a concept
+      DOI always resolves to the latest version.
+  - title: Language
+    body: |
+      Manuscripts may be written in any language. Non-English articles are
+      accompanied by an English translation produced by AI and marked as such, with
+      a notice that it may contain mistranslations. The original-language text is
+      the version of record.
+data_availability: "Not applicable; no data were generated."
+code_availability: "The journal platform is open source at https://github.com/kangmg/journal."
+ai_use: "An AI assistant helped draft the platform code and proofread this text; the author reviewed all content."
+mint_doi: true

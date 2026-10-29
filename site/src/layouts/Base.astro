@@ -1,0 +1,169 @@
+---
+import "@fontsource-variable/newsreader";
+import "@fontsource-variable/source-sans-3";
+import "katex/dist/katex.min.css";
+import "../styles/global.css";
+import { journal, u, issueUrl, currentVolume } from "../lib/data";
+
+interface Props {
+  title?: string;
+  description?: string;
+  current?: string;
+}
+const { title, description = journal.journal.tagline, current } = Astro.props;
+const j = journal.journal;
+const fullTitle = title ? `${title} | ${j.title}` : j.title;
+const nav = [
+  { href: u("/articles/"), label: "Articles", key: "articles" },
+  { href: u("/subjects/"), label: "Subjects", key: "subjects" },
+  { href: u("/archive/"), label: "Archive", key: "archive" },
+  { href: u("/why/"), label: "Why this journal", key: "why" },
+  { href: u("/guide/"), label: "Author guide", key: "guide" },
+  { href: u("/agents/"), label: "AI agents", key: "agents" },
+  { href: u("/knowledge/"), label: "Knowledge base", key: "knowledge" },
+  { href: u("/policy/"), label: "Policy", key: "policy" },
+];
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const volume = currentVolume();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        let stored = null;
+        try { stored = localStorage.getItem("theme"); } catch {}
+        if (stored === "light" || stored === "dark") root.dataset.theme = stored;
+        const dark = stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        root.dataset.themeEffective = dark ? "dark" : "light";
+      })();
+    </script>
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/atom+xml" title={j.title} href={u("/atom.xml")} />
+    <link rel="icon" href={u("/favicon.svg")} type="image/svg+xml" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#1c3558" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header>
+      <div class="utility">
+        <div class="wrap">
+          <p>Open access · Free to read and free to publish</p>
+          <div class="utility-actions">
+            <a href={`https://github.com/${journal.github.repo}`}>GitHub</a>
+            <a href={u("/atom.xml")}>Feed</a>
+            <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to dark theme">
+              <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
+              <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></svg>
+              <span data-theme-label>Dark</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="band">
+        <div class="wrap">
+          <a class="wordmark" href={u("/")}>
+            <span class="wordmark-title">{j.title}</span>
+            <span class="wordmark-meta">{j.abbreviation} · Volume {volume.number} ({volume.year}) · Continuous publication{j.issn && ` · ISSN ${j.issn}`}</span>
+          </a>
+          <form class="masthead-search" action={u("/search/")} method="get" role="search">
+            <label class="sr-only" for="masthead-q">Search articles</label>
+            <input id="masthead-q" name="q" type="search" placeholder="Search articles" autocomplete="off" />
+            <button type="submit" aria-label="Search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+      <nav class="primary-nav" aria-label="Main">
+        <div class="wrap">
+          <div class="nav-links">
+            {nav.map((item) => (
+              <a href={item.href} aria-current={current === item.key ? "page" : undefined}>{item.label}</a>
+            ))}
+          </div>
+          <a class="btn btn-primary nav-submit" href={u("/submit/")} aria-current={current === "submit" ? "page" : undefined}>Submit manuscript</a>
+        </div>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap footer-main">
+        <div>
+          <h2 class="footer-title">{j.title}</h2>
+          <p>{j.tagline}</p>
+          <p>Founded and maintained by <a href={`https://github.com/${j.maintainer.github}`}>{j.maintainer.name}</a>. Submissions are screened by an
+          AI editorial agent; the maintainer confirms every decision. Articles are free to read and free to publish.</p>
+        </div>
+        <div>
+          <h2>Read</h2>
+          <ul>
+            <li><a href={u("/articles/")}>All articles</a></li>
+            <li><a href={u("/subjects/")}>Subjects</a></li>
+            <li><a href={u("/archive/")}>Archive</a></li>
+            <li><a href={u("/search/")}>Search</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Publish</h2>
+          <ul>
+            <li><a href={u("/submit/")}>Submit a manuscript</a></li>
+            <li><a href={u("/guide/")}>Author guide</a></li>
+            <li><a href={u("/agents/")}>Guide for AI agents</a></li>
+            <li><a href={u("/examples/")}>Example manuscripts</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Journal</h2>
+          <ul>
+            <li><a href={u("/why/")}>Why this journal</a></li>
+            <li><a href={u("/knowledge/")}>Knowledge base and MCP</a></li>
+            <li><a href={u("/policy/")}>Editorial policy</a></li>
+            <li><a href={u("/policy/#disclaimer")}>Disclaimer</a></li>
+            <li><a href={issueUrl("2-revision.yml")}>Post a revision</a></li>
+            <li><a href={u("/atom.xml")}>Atom feed</a></li>
+            <li><a href={`https://github.com/${journal.github.repo}`}>Source on GitHub</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-base">
+        <div class="wrap">
+          <p>© {volume.year} the authors. Articles are published under Creative Commons licences and provided as is;
+          the journal takes no responsibility for disputes arising from submissions (<a href={u("/policy/#disclaimer")}>disclaimer</a>).</p>
+          <p>{j.title} · Est. {j.founded}</p>
+        </div>
+      </div>
+    </footer>
+    <script>
+      const root = document.documentElement;
+      const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+      const label = toggle?.querySelector<HTMLElement>("[data-theme-label]");
+      const media = matchMedia("(prefers-color-scheme: dark)");
+      const sync = () => {
+        const dark = root.dataset.theme ? root.dataset.theme === "dark" : media.matches;
+        root.dataset.themeEffective = dark ? "dark" : "light";
+        toggle?.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+        if (label) label.textContent = dark ? "Light" : "Dark";
+      };
+      toggle?.addEventListener("click", () => {
+        const next = root.dataset.themeEffective === "dark" ? "light" : "dark";
+        root.dataset.theme = next;
+        try { localStorage.setItem("theme", next); } catch {}
+        sync();
+      });
+      media.addEventListener("change", sync);
+      sync();
+    </script>
+  </body>
+</html>

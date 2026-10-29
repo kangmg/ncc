@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArticleList from "../../components/ArticleList.astro";
+import { authors, byId, type Article } from "../../lib/data";
+
+export function getStaticPaths() {
+  return authors.map((a) => ({
+    params: { github: a.github.toLowerCase() },
+    props: { author: a, items: a.articles.map((id) => byId(id)).filter((x): x is Article => Boolean(x)) },
+  }));
+}
+
+interface Props {
+  author: (typeof authors)[number];
+  items: Article[];
+}
+const { author, items } = Astro.props;
+---
+<Base title={author.name}>
+  <div class="wrap">
+    <h1 class="page-title">{author.name}</h1>
+    <p class="lede">
+      <a href={`https://github.com/${author.github}`}>@{author.github}</a>
+      {author.orcid && <> · <a href={`https://orcid.org/${author.orcid}`}>ORCID {author.orcid}</a></>}
+    </p>
+    <h2 class="section-title">Articles</h2>
+    <ArticleList items={items} />
+  </div>
+</Base>

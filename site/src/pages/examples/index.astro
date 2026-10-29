@@ -1,0 +1,18 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArticleList from "../../components/ArticleList.astro";
+import { examples, journal, u } from "../../lib/data";
+
+const source = `https://github.com/${journal.github.repo}/tree/${journal.github.branch}/examples`;
+---
+<Base title="Example manuscripts" current="guide">
+  <div class="wrap doc">
+    <h1 class="page-title">Example manuscripts</h1>
+    <p class="lede">Each example is a real <code>paper.yml</code> rendered by the same pipeline as published articles.
+    Copy the one closest to your work from <a href={source}>the examples folder</a>.</p>
+  </div>
+  <div class="wrap">
+    <ArticleList items={examples} />
+    <p class="muted">The format rules are in the <a href={u("/guide/")}>author guide</a>.</p>
+  </div>
+</Base>

@@ -1,0 +1,19 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArticleView from "../../components/ArticleView.astro";
+import { examples, latest, type Article } from "../../lib/data";
+
+export function getStaticPaths() {
+  return examples.map((article) => ({ params: { name: article.id.replace(/^example-/, "") }, props: { article } }));
+}
+
+interface Props {
+  article: Article;
+}
+const { article } = Astro.props;
+const version = latest(article);
+---
+<Base title={`Example: ${version.translation?.title ?? version.title}`} current="guide">
+  <meta slot="head" name="robots" content="noindex" />
+  <ArticleView article={article} version={version} />
+</Base>

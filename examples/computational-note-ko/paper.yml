@@ -1,0 +1,47 @@
+title: "CI-NEB 이미지 수에 따른 활성화 에너지 수렴: 작은 계산 노트"
+article_type: computational-note
+language: ko
+authors:
+  - name: 강민기
+    given: 민기
+    family: 강
+    github: kangmg
+    affiliations: [1]
+    corresponding: true
+affiliations:
+  1: "예시대학교 화학과"
+abstract: |
+  CI-NEB 계산에서 이미지 수는 비용과 정확도를 함께 결정한다. 이 노트에서는 금속 표면의
+  단순한 해리 반응을 대상으로 이미지 수를 5개에서 11개까지 바꾸며 활성화 에너지의 수렴을
+  확인했다. 7개 이상에서 활성화 에너지는 0.01 eV 이내로 수렴했다. **이 원고는 형식을
+  보여주기 위한 예시이며, 수치는 설명용이다.**
+tags: [DFT, Reaction Mechanism, "transition state"]
+license: CC-BY-4.0
+sections:
+  - title: 서론
+    body: |
+      Climbing-image NEB(CI-NEB)는 전이 상태 탐색의 표준 방법이다 [@henkelman2000].
+      이미지 수가 적으면 최고점을 놓칠 수 있고, 많으면 계산 비용이 선형으로 증가한다.
+  - title: 계산 방법
+    body: |
+      모든 계산은 ASE [@larsen2017]로 구성했으며, 에너지 장벽은
+      $E_a = E_\text{TS} - E_\text{IS}$ 로 정의했다. 이미지 수는 5, 7, 9, 11개를 사용했다.
+  - title: 결과
+    body: |
+      그림 @fig:neb 은 이미지 9개에서 얻은 에너지 프로파일이다. 활성화 에너지는
+      +0.74 eV, 반응 에너지는 −0.31 eV였다. 이미지 7개 이상에서 활성화 에너지 변화는
+      0.01 eV 미만이었다.
+
+      ![이미지 9개 CI-NEB 에너지 프로파일 (설명용 데이터).](figures/neb.svg){#fig:neb width=65%}
+  - title: 결론
+    body: |
+      단순한 표면 반응에서는 이미지 7개면 충분했다. 반응 경로가 복잡한 경우에는
+      더 많은 이미지가 필요할 수 있다.
+references:
+  - id: henkelman2000
+    doi: 10.1063/1.1329672
+  - id: larsen2017
+    doi: 10.1088/1361-648X/aa680e
+data_availability: "입력 파일과 스크립트는 요청 시 제공한다 (예시)."
+ai_use: "없음."
+mint_doi: false

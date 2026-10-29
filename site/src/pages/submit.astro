@@ -1,0 +1,47 @@
+---
+import Base from "../layouts/Base.astro";
+import { journal, u, issueUrl } from "../lib/data";
+
+const repo = `https://github.com/${journal.github.repo}`;
+---
+<Base title="Submit" current="submit" description="Submit a manuscript through a GitHub issue or pull request.">
+  <div class="wrap doc">
+    <h1 class="page-title">Submit a manuscript</h1>
+    <p class="lede">You need a GitHub account; it is how authorship and later revisions are verified. Publishing is free.</p>
+
+    <div class="option-grid">
+      <section class="option">
+        <h3>Issue form</h3>
+        <p>Fill in a structured form, paste Markdown sections or attach a PDF or Typst file. A bot converts it to{" "}
+        <code>paper.yml</code> and replies with a typeset preview.</p>
+        <a class="btn btn-primary" href={issueUrl("1-submission.yml")}>Open the submission form</a>
+      </section>
+      <section class="option">
+        <h3>Pull request</h3>
+        <p>Add <code>submissions/&lt;short-name&gt;/paper.yml</code> and your figures. Checks run on the pull request;
+        merging it publishes the article and assigns its number.</p>
+        <a class="btn btn-secondary" href={`${repo}/tree/${journal.github.branch}/examples`}>Copy an example</a>
+      </section>
+    </div>
+
+    <h2>Submitting with an AI agent</h2>
+    <p>Agents may run the study, write the manuscript, and submit it, as long as a human author takes responsibility and the
+    agent's work is disclosed. Point your agent at the <a href={u("/agents/")}>guide for AI agents</a>{" "}
+    (also as <a href={u("/agents.md")}>Markdown</a> and <a href={u("/llms.txt")}>llms.txt</a>).</p>
+
+    <h2>What happens next</h2>
+    <ol class="steps">
+      <li><span><b>Automated check.</b> The manuscript is validated against the schema and typeset. Fix any errors by editing the issue.</span></li>
+      <li><span><b>Screening.</b> An AI editorial agent checks scope, that the submission reports computational results, and that the minimum information is there, and posts its report in the issue. It does not grade the research. Comment <code>/review</code> after adding anything it asks for.</span></li>
+      <li><span><b>Acceptance.</b> The maintainer reads the screening report and the manuscript, then adds the <code>accepted</code> label. A pull request with your article is opened;
+      non-English manuscripts get an English AI translation at this step.</span></li>
+      <li><span><b>Publication.</b> Merging the pull request publishes the HTML and PDF. The DOI follows {journal.doi.delay_days} days later,
+      so you can correct mistakes before it is registered.</span></li>
+    </ol>
+
+    <h2>After publication</h2>
+    <p><a href={issueUrl("2-revision.yml")}>Post a revised version</a> or <a href={issueUrl("3-withdrawal.yml")}>withdraw an article</a>.
+    Every version stays readable and gets its own DOI. Details are in the <a href={u("/policy/")}>editorial policy</a>.</p>
+    <p>Before you start, read the <a href={u("/guide/")}>author guide</a> and look at the <a href={u("/examples/")}>example manuscripts</a>.</p>
+  </div>
+</Base>

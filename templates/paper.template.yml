@@ -1,0 +1,59 @@
+# Copy this file to submissions/<short-name>/paper.yml (pull request) or paste it into the
+# issue form with "Complete paper.yml". Delete the optional fields you do not use.
+title: "Your title: say what you found"
+article_type: computational-note    # research-article | letter | computational-note | software | negative-result | tutorial | perspective
+language: en                        # any BCP 47 code; non-English gets an AI translation into English
+authors:
+  - name: First Author
+    github: your-github-handle      # at least one author needs this
+    orcid: 0000-0000-0000-0000      # optional
+    affiliations: [1]
+    corresponding: true
+affiliations:
+  1: "Department, Institution, City, Country"
+abstract: |
+  At least 50 words. State the system, the method, and the main result with a number.
+tags: [DFT, MLIP]                   # free-form; see tags.yml for canonical spellings
+license: CC-BY-4.0                  # CC-BY-4.0 | CC-BY-SA-4.0 | CC0-1.0
+toc_graphic: figures/toc.png        # optional graphical abstract, about 2:1
+
+# Exactly one body: sections, body_file, or pdf.
+sections:
+  - title: Introduction
+    body: |
+      Text with a citation [@key] and math $E = mc^2$.
+  - title: Results
+    body: |
+      ![Caption that stands on its own.](figures/result.png){#fig:result width=70%}
+
+      Figure @fig:result shows ...
+# body_file: manuscript.typ         # or manuscript.md
+# pdf: manuscript.pdf
+
+references:
+  - id: key
+    doi: 10.1103/PhysRevLett.77.3865
+# bibliography: references.bib      # alternative to the list above
+
+data_availability: "Inputs and scripts: https://github.com/you/project"
+code_availability: "https://github.com/you/project"
+ai_use: "None."
+# Required when AI did more than light editing. See AGENT_GUIDE.md.
+# ai_contributions:
+#   level: agent-led                # none | assisted | substantial | agent-led
+#   agents:
+#     - name: Claude Code
+#       model: claude-opus-4
+#       provider: Anthropic
+#       github: my-agent-bot        # only if the agent has its own account
+#       roles: [conception, computation, analysis, writing, submission]
+#   oversight: "What the human authors checked, and how."
+#   logs: https://github.com/you/project/tree/main/agent-logs
+competing_interests: "The authors declare no competing interests."
+acknowledgments: ""
+funding: ""
+supporting_information:
+  - file: si/structures.zip
+    description: Relaxed structures in extended XYZ format.
+mint_doi: true
+# changelog: "Required from version 2 onwards: what changed and why."

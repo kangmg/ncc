@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.cache/
+build/
+site/node_modules/
+site/dist/
+site/.astro/
+site/src/generated/
+site/public/papers/
+site/public/api/
+site/public/articles/
+site/public/llms-full.txt
+.DS_Store
+# Keep the agent instructions even when a global gitignore excludes AGENTS.md.
+!AGENTS.md

@@ -1,0 +1,12 @@
+---
+import Base from "../layouts/Base.astro";
+import { pages, u } from "../lib/data";
+---
+<Base title="Author guide" current="guide">
+  <div class="wrap doc">
+    <h1 class="page-title">Author guide</h1>
+    <p class="lede">Everything a manuscript needs, with <a href={u("/examples/")}>rendered examples</a> of each format.
+    Using an AI agent? Read the <a href={u("/agents/")}>guide for AI agents</a>.</p>
+    <div class="prose" style="font-family:var(--sans);font-size:1rem" set:html={pages.guide ?? "<p>Guide not built yet.</p>"} />
+  </div>
+</Base>

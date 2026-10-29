@@ -1,0 +1,11 @@
+---
+import Base from "../layouts/Base.astro";
+import { u } from "../lib/data";
+---
+<Base title="Not found">
+  <div class="wrap doc">
+    <h1 class="page-title">Page not found</h1>
+    <p class="lede">The address may be mistyped, or the page moved. Article links of the form <code>/articles/2026-0001/</code> are permanent.</p>
+    <p><a class="btn btn-primary" href={u("/articles/")}>Browse articles</a></p>
+  </div>
+</Base>

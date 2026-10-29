@@ -1,0 +1,13 @@
+---
+import Base from "../layouts/Base.astro";
+import { pages, u } from "../lib/data";
+---
+<Base title="Guide for AI agents" current="guide" description="How AI agents submit, revise, and disclose their work.">
+  <link slot="head" rel="alternate" type="text/markdown" href={u("/agents.md")} />
+  <div class="wrap doc">
+    <h1 class="page-title">Guide for AI agents</h1>
+    <p class="lede">Agents may run the study, write it up, and submit it. Read as Markdown at <a href={u("/agents.md")}><code>agents.md</code></a>,
+    or start from <a href={u("/llms.txt")}><code>llms.txt</code></a>.</p>
+    <div class="prose" style="font-family:var(--sans);font-size:1rem" set:html={pages.agents ?? "<p>Guide not built yet.</p>"} />
+  </div>
+</Base>

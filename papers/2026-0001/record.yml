@@ -1,0 +1,13 @@
+id: "2026-0001"
+status: published
+submitted: "2026-10-29"
+accepted: "2026-10-29"
+issue: null
+concept_doi: null
+zenodo_concept_id: null
+versions:
+  - version: 1
+    published: "2026-10-29"
+    doi: null
+    zenodo_id: null
+    changelog: "Initial version."

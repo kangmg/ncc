@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 400" width="420" height="400" font-family="Helvetica, Arial, sans-serif" font-size="13">
+<rect width="420" height="400" fill="#ffffff"/>
+<line x1="67.5" y1="344.0" x2="67.5" y2="20.0" stroke="#eeeeee"/>
+<line x1="56.0" y1="333.2" x2="400.0" y2="333.2" stroke="#eeeeee"/>
+<text x="67.5" y="362.0" text-anchor="middle" fill="#444">0.5</text>
+<text x="48.0" y="337.2" text-anchor="end" fill="#444">0.5</text>
+<line x1="124.8" y1="344.0" x2="124.8" y2="20.0" stroke="#eeeeee"/>
+<line x1="56.0" y1="279.2" x2="400.0" y2="279.2" stroke="#eeeeee"/>
+<text x="124.8" y="362.0" text-anchor="middle" fill="#444">1.0</text>
+<text x="48.0" y="283.2" text-anchor="end" fill="#444">1.0</text>
+<line x1="182.1" y1="344.0" x2="182.1" y2="20.0" stroke="#eeeeee"/>
+<line x1="56.0" y1="225.2" x2="400.0" y2="225.2" stroke="#eeeeee"/>
+<text x="182.1" y="362.0" text-anchor="middle" fill="#444">1.5</text>
+<text x="48.0" y="229.2" text-anchor="end" fill="#444">1.5</text>
+<line x1="239.5" y1="344.0" x2="239.5" y2="20.0" stroke="#eeeeee"/>
+<line x1="56.0" y1="171.2" x2="400.0" y2="171.2" stroke="#eeeeee"/>
+<text x="239.5" y="362.0" text-anchor="middle" fill="#444">2.0</text>
+<text x="48.0" y="175.2" text-anchor="end" fill="#444">2.0</text>
+<line x1="296.8" y1="344.0" x2="296.8" y2="20.0" stroke="#eeeeee"/>
+<line x1="56.0" y1="117.2" x2="400.0" y2="117.2" stroke="#eeeeee"/>
+<text x="296.8" y="362.0" text-anchor="middle" fill="#444">2.5</text>
+<text x="48.0" y="121.2" text-anchor="end" fill="#444">2.5</text>
+<line x1="354.1" y1="344.0" x2="354.1" y2="20.0" stroke="#eeeeee"/>
+<line x1="56.0" y1="63.2" x2="400.0" y2="63.2" stroke="#eeeeee"/>
+<text x="354.1" y="362.0" text-anchor="middle" fill="#444">3.0</text>
+<text x="48.0" y="67.2" text-anchor="end" fill="#444">3.0</text>
+<rect x="56.0" y="20.0" width="344.0" height="324.0" fill="none" stroke="#333"/>
+<line x1="56.0" y1="344.0" x2="400.0" y2="20.0" stroke="#999" stroke-dasharray="5 4"/>
+<circle cx="175.5" cy="245.0" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="100.5" cy="302.5" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="238.7" cy="204.3" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="230.2" cy="206.4" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="90.1" cy="325.8" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="106.0" cy="308.1" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="205.5" cy="226.6" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="145.5" cy="282.0" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="266.0" cy="167.9" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="197.2" cy="239.8" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="370.0" cy="77.3" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="165.3" cy="256.0" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="121.9" cy="290.5" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="322.2" cy="128.8" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="132.8" cy="299.9" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="190.0" cy="248.3" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="242.2" cy="196.1" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="140.3" cy="280.4" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="281.8" cy="174.7" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="253.5" cy="186.4" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="214.0" cy="227.4" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="287.3" cy="146.2" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="151.7" cy="283.1" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="339.8" cy="125.5" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="296.4" cy="161.7" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="114.1" cy="276.5" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="203.6" cy="230.3" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="224.7" cy="219.0" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="90.6" cy="330.1" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="249.8" cy="207.5" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="339.9" cy="125.9" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="256.1" cy="174.1" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="251.8" cy="209.3" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="360.6" cy="98.3" r="4.2" fill="#20456B" fill-opacity="0.85"/>
+<circle cx="220.3" cy="218.7" r="4.2" fill="#B5651D" fill-opacity="0.85"/>
+<circle cx="288.1" cy="165.0" r="4.2" fill="#3C7A5A" fill-opacity="0.85"/>
+<circle cx="72.0" cy="36.0" r="4.2" fill="#20456B"/><text x="82.0" y="40.0" fill="#222">Nb</text>
+<circle cx="72.0" cy="54.0" r="4.2" fill="#B5651D"/><text x="82.0" y="58.0" fill="#222">W</text>
+<circle cx="72.0" cy="72.0" r="4.2" fill="#3C7A5A"/><text x="82.0" y="76.0" fill="#222">Nb–W–O</text>
+<text x="228.0" y="388" text-anchor="middle" fill="#222">PBE surface energy (J m⁻²)</text>
+<text transform="translate(16 182.0) rotate(-90)" text-anchor="middle" fill="#222">MLIP surface energy (J m⁻²)</text>
+</svg>

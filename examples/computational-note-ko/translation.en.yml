@@ -1,0 +1,29 @@
+source_language: ko
+machine_translated: true
+model: example translation prepared by Claude (stubbed model call)
+date: '2026-10-29'
+title: 'Convergence of CI-NEB Activation Energies with the Number of Images: A Short Computational Note'
+abstract: |
+  In CI-NEB calculations, the number of images determines both cost and accuracy. In this note, we varied the number of images from 5 to 11 for a simple dissociation reaction on a metal surface and checked the convergence of the activation energy. With 7 or more images, the activation energy converged to within 0.01 eV. **This manuscript is an example to demonstrate the format, and the numbers are illustrative.**
+data_availability: Input files and scripts are available on request (example).
+ai_use: None.
+sections:
+- title: Introduction
+  body: |-
+    Climbing-image NEB (CI-NEB) is the standard method for locating transition states [@henkelman2000].
+    With too few images the highest point may be missed; with many images the computational cost increases linearly.
+- title: Computational Methods
+  body: |-
+    All calculations were set up with ASE [@larsen2017], and the energy barrier was defined as
+    $E_a = E_\text{TS} - E_\text{IS}$. We used 5, 7, 9, and 11 images.
+- title: Results
+  body: |-
+    Figure @fig:neb shows the energy profile obtained with 9 images. The activation energy was
+    +0.74 eV and the reaction energy was −0.31 eV. With 7 or more images, the change in activation energy was
+    less than 0.01 eV.
+
+    ![CI-NEB energy profile with 9 images (illustrative data).](figures/neb.svg){#fig:neb width=65%}
+- title: Conclusions
+  body: |-
+    For a simple surface reaction, 7 images were sufficient. More complex reaction pathways
+    may require more images.

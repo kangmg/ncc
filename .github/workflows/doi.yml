@@ -1,0 +1,63 @@
+name: DOI
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "mint = register DOIs that are due; withdraw = mark an article's Zenodo records as withdrawn"
+        type: choice
+        options: [mint, withdraw]
+        default: mint
+      article:
+        description: "Article ID for withdraw (e.g. 2026-0007)"
+        required: false
+      dry_run:
+        description: "List what would be minted without calling Zenodo"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: doi
+  cancel-in-progress: false
+
+jobs:
+  doi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-journal
+
+      - name: Zenodo
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          ZENODO_SANDBOX_TOKEN: ${{ secrets.ZENODO_SANDBOX_TOKEN }}
+          ACTION: ${{ inputs.action || 'mint' }}
+          ARTICLE: ${{ inputs.article }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          if [ "$ACTION" = "withdraw" ]; then
+            uv run jtools doi withdraw "$ARTICLE"
+          elif [ "$DRY_RUN" = "true" ]; then
+            uv run jtools doi mint --dry-run
+          else
+            uv run jtools doi mint
+          fi
+
+      - name: Commit DOIs and redeploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "$(git status --porcelain papers)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add papers
+            git commit -m "Record registered DOIs"
+            git push
+            gh workflow run deploy.yml
+          fi
