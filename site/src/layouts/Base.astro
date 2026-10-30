@@ -3,6 +3,7 @@ import "@fontsource-variable/newsreader";
 import "@fontsource-variable/source-sans-3";
 import "katex/dist/katex.min.css";
 import "../styles/global.css";
+import Icon from "../components/Icon.astro";
 import { journal, u, issueUrl, currentVolume } from "../lib/data";
 
 interface Props {
@@ -18,7 +19,6 @@ const nav = [
   { href: u("/subjects/"), label: "Subjects", key: "subjects" },
   { href: u("/archive/"), label: "Archive", key: "archive" },
   { href: u("/why/"), label: "Why this journal", key: "why" },
-  { href: u("/guide/"), label: "Author guide", key: "guide" },
   { href: u("/agents/"), label: "AI agents", key: "agents" },
   { href: u("/knowledge/"), label: "Knowledge base", key: "knowledge" },
   { href: u("/policy/"), label: "Policy", key: "policy" },
@@ -36,8 +36,8 @@ const volume = currentVolume();
         const root = document.documentElement;
         let stored = null;
         try { stored = localStorage.getItem("theme"); } catch {}
-        if (stored === "light" || stored === "dark") root.dataset.theme = stored;
-        const dark = stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+        root.dataset.theme = stored === "dark" ? "dark" : "light";
+        const dark = root.dataset.theme === "dark";
         root.dataset.themeEffective = dark ? "dark" : "light";
       })();
     </script>
@@ -91,7 +91,10 @@ const volume = currentVolume();
               <a href={item.href} aria-current={current === item.key ? "page" : undefined}>{item.label}</a>
             ))}
           </div>
-          <a class="btn btn-primary nav-submit" href={u("/submit/")} aria-current={current === "submit" ? "page" : undefined}>Submit manuscript</a>
+          <div class="nav-actions">
+            <a class="btn btn-secondary" href={u("/guide/")} aria-current={current === "guide" ? "page" : undefined}><Icon name="file" /><span>Author guide</span></a>
+            <a class="btn btn-primary nav-submit" href={u("/submit/")} aria-current={current === "submit" ? "page" : undefined}><Icon name="submit" />Submit manuscript</a>
+          </div>
         </div>
       </nav>
     </header>
@@ -149,9 +152,8 @@ const volume = currentVolume();
       const root = document.documentElement;
       const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
       const label = toggle?.querySelector<HTMLElement>("[data-theme-label]");
-      const media = matchMedia("(prefers-color-scheme: dark)");
       const sync = () => {
-        const dark = root.dataset.theme ? root.dataset.theme === "dark" : media.matches;
+        const dark = root.dataset.theme === "dark";
         root.dataset.themeEffective = dark ? "dark" : "light";
         toggle?.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
         if (label) label.textContent = dark ? "Light" : "Dark";
@@ -162,7 +164,6 @@ const volume = currentVolume();
         try { localStorage.setItem("theme", next); } catch {}
         sync();
       });
-      media.addEventListener("change", sync);
       sync();
     </script>
   </body>

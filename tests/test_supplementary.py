@@ -1,11 +1,13 @@
 from pathlib import Path
+from zipfile import ZipFile
 
 import pytest
 
 from jtools import assets, config, export, issue, model, render, validate
 
 
-def test_small_si_validates_exports_and_renders(tmp_path, monkeypatch):
+@pytest.mark.parametrize("with_pdf", [False, True])
+def test_small_si_validates_exports_and_renders(tmp_path, monkeypatch, with_pdf):
     paper = dict(model.discover_articles()[0].latest.paper)
     paper.pop("body_file", None)
     paper.pop("pdf", None)
@@ -19,12 +21,20 @@ def test_small_si_validates_exports_and_renders(tmp_path, monkeypatch):
     public = tmp_path.parent / (tmp_path.name + "-public")
     monkeypatch.setattr(export, "_public_dir", lambda a, v: (public, "/journal/papers/test/v1/"))
 
-    data = export.export_version(article, version, False)
+    data = export.export_version(article, version, with_pdf)
 
     assert not [f for f in validate.validate_paper(paper, tmp_path, "p") if f.level == "error"]
     assert (public / "si" / "atom.xyz").read_bytes() == (tmp_path / "si" / "atom.xyz").read_bytes()
     assert data["supporting_information"][0]["url"] == config.site_url(f"/papers/{article.id}/v1/si/atom.xyz")
     assert 'href="/journal/papers/test/v1/si/atom.xyz"' in data["body_html"]
+    if with_pdf:
+        with ZipFile(public / f"{article.key(1)}-files.zip") as bundle:
+            assert set(bundle.namelist()) == {f"{article.key(1)}.pdf", "si/atom.xyz"}
+            assert bundle.read("si/atom.xyz") == (tmp_path / "si" / "atom.xyz").read_bytes()
+            assert bundle.read(f"{article.key(1)}.pdf") == (public / f"{article.key(1)}.pdf").read_bytes()
+        assert data["bundle"] == f"/journal/papers/test/v1/{article.key(1)}-files.zip"
+    else:
+        assert data["bundle"] is None
 
 
 @pytest.mark.parametrize("rel", ["si/../outside.xyz", "si/missing.xyz"])

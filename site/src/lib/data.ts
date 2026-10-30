@@ -56,9 +56,10 @@ export interface Version {
   body_html?: string;
   toc_graphic?: string | null;
   cite?: { acs: string; bibtex: string; ris: string };
-  supporting_information?: { url: string; file: string; description: string }[];
+  supporting_information?: { url: string; file: string; description: string; external: boolean }[];
   mint_doi?: boolean;
   pdf?: string | null;
+  bundle?: string | null;
   translation?: Translation | null;
   ai: AiContribution | null;
 }

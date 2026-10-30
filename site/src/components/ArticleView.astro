@@ -84,7 +84,7 @@ const discussUrl = article.issue ? `https://github.com/${journal.github.repo}/is
               )}
               {a.orcid && (
                 <a class="orcid" href={`https://orcid.org/${a.orcid}`} aria-label={`ORCID of ${a.name}`} title={`ORCID ${a.orcid}`}>
-                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#A6CE39" /><path fill="#fff" d="M8.2 7.4a.9.9 0 1 1-1.8 0 .9.9 0 0 1 1.8 0ZM6.6 9.1h1.4V17H6.6V9.1Zm3.4 0h3.8c3.6 0 5.2 2.6 5.2 4 0 2.1-1.6 3.9-5.2 3.9H10V9.1Zm1.4 6.7h2.3c2.9 0 3.6-2.2 3.6-2.8 0-1.4-1-2.7-3.6-2.7h-2.3v5.5Z" /></svg>
+                  <Icon name="orcid" />
                 </a>
               )}
             </li>
@@ -171,10 +171,12 @@ const discussUrl = article.issue ? `https://github.com/${journal.github.repo}/is
 
     <aside class="aside" aria-label="Article tools">
       {!withdrawn && (
-        <div class="aside-block">
-          <h2>Download</h2>
-          {version.pdf && <a class="btn btn-primary" href={version.pdf}>Download PDF</a>}
-          {tr?.pdf && <a class="btn btn-secondary" href={tr.pdf}>English PDF (AI translation)</a>}
+        <div class="aside-block article-files">
+          <h2>Article files</h2>
+          {version.pdf && <a class="btn btn-primary" href={version.pdf} download><Icon name="file" /><span>PDF only</span><Icon name="download" /></a>}
+          {version.bundle && <a class="btn btn-secondary" href={version.bundle} download><Icon name="folder-download" /><span>Download all</span></a>}
+          {version.bundle && version.supporting_information?.some((si) => si.external) && <p class="file-note">External SI is listed as links in the ZIP.</p>}
+          {tr?.pdf && <a class="btn btn-secondary" href={tr.pdf}><Icon name="download" /><span>English PDF (AI translation)</span></a>}
           {version.supporting_information && version.supporting_information.length > 0 && (
             <ul class="related" style="margin-top:12px">
               {version.supporting_information.map((si) => <li><a href={si.url}>{si.file}</a>: {si.description}</li>)}

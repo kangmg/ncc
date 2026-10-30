@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 import sys
+from zipfile import ZIP_DEFLATED, ZipFile
 from pathlib import Path
 
 from . import assets, cite, config, knowledge, model, pdf, render
@@ -82,11 +83,12 @@ def export_version(article: model.Article, version: model.Version, with_pdf: boo
         "cite": cite.citation_data(article, version),
         "supporting_information": [
             {"url": i["url"] if "url" in i else config.site_url(f"/papers/{article.id}/v{version.number}/{i['file']}"),
-             "file": i.get("file", i["description"]), "description": i["description"]}
+             "file": i.get("file", i["description"]), "description": i["description"], "external": "url" in i}
             for i in paper.get("supporting_information", [])
         ],
         "mint_doi": paper.get("mint_doi", True),
         "pdf": None,
+        "bundle": None,
         "translation": None,
     }
     if with_pdf:
@@ -115,6 +117,20 @@ def export_version(article: model.Article, version: model.Version, with_pdf: boo
             pdf_name = f"{article.key(version.number)}-en.pdf"
             pdf.build_pdf(article, version, dest / pdf_name, translated=True)
             data["translation"]["pdf"] = public + pdf_name
+    if with_pdf:
+        bundle_name = f"{article.key(version.number)}-files.zip"
+        with ZipFile(dest / bundle_name, "w", compression=ZIP_DEFLATED) as bundle:
+            bundle.write(dest / f"{article.key(version.number)}.pdf", f"{article.key(version.number)}.pdf")
+            if version.translation:
+                translated_pdf = f"{article.key(version.number)}-en.pdf"
+                bundle.write(dest / translated_pdf, translated_pdf)
+            for item in paper.get("supporting_information", []):
+                if "file" in item:
+                    bundle.write(version.dir / item["file"], item["file"])
+            external = [item for item in paper.get("supporting_information", []) if "url" in item]
+            if external:
+                bundle.writestr("external-si-links.json", json.dumps(external, ensure_ascii=False, indent=2))
+        data["bundle"] = public + bundle_name
     return data
 
 
