@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NCC — submission workflow</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; background: #f3f6fa; color: #1c2b3c; font-family: "Source Sans 3", Helvetica, Arial, sans-serif; }
+    main { max-width: 600px; min-width: 0; margin: auto; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 600px; }
+    @media print { .diagram-container { overflow-x: visible; } svg { min-width: 0; } }
+  </style>
+</head>
+<body>
+<main>
+<div class="diagram-container">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="1028" viewBox="0 0 600 1028" role="img" aria-labelledby="workflow-mobile-title workflow-mobile-desc">
+  <title id="workflow-mobile-title">From a finding to a shared record</title>
+  <desc id="workflow-mobile-desc">Share via Issue or pull request, receive validation and AI screening, get a maintainer decision, publish by merging, and register a DOI separately through the scheduled Zenodo job, currently in Sandbox mode.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#536577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <rect width="600" height="1028" rx="8" fill="#f3f6fa"/>
+  <text x="40" y="64" fill="#1c3558" font-family="Newsreader, Georgia, serif" font-size="40">From a finding</text>
+  <text x="40" y="112" fill="#1c3558" font-family="Newsreader, Georgia, serif" font-size="40">to a shared record.</text>
+  <g fill="none" stroke="#536577" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M300 308 V328"/>
+    <path d="M300 480 V500"/>
+    <path d="M300 652 V672"/>
+    <path d="M300 824 V844" stroke-dasharray="4 4"/>
+  </g>
+  <g id="share">
+    <rect x="40" y="164" width="520" height="136" rx="6" fill="#ffffff" stroke="#d9e3ec"/>
+    <text x="64" y="224" font-size="40" fill="#536577">01</text>
+    <text x="144" y="212" font-size="34" font-weight="600" fill="#1c3558">Share your work</text>
+    <text x="144" y="256" font-size="26" fill="#536577">GitHub Issue or pull request</text>
+  </g>
+  <g id="check">
+    <rect x="40" y="336" width="520" height="136" rx="6" fill="#ffffff" stroke="#d9e3ec"/>
+    <text x="64" y="396" font-size="40" fill="#536577">02</text>
+    <text x="144" y="384" font-size="34" font-weight="600" fill="#1c3558">Check</text>
+    <text x="144" y="428" font-size="26" fill="#536577">Validation, PDF, AI screening</text>
+  </g>
+  <g id="confirm">
+    <rect x="40" y="508" width="520" height="136" rx="6" fill="#fff8e9" stroke="#d7ae62" stroke-width="2"/>
+    <text x="64" y="568" font-size="40" fill="#87621a">03</text>
+    <text x="144" y="556" font-size="34" font-weight="600" fill="#1c3558">Confirm</text>
+    <text x="144" y="600" font-size="26" fill="#536577">The maintainer decides</text>
+  </g>
+  <g id="publish">
+    <rect x="40" y="680" width="520" height="136" rx="6" fill="#244c76"/>
+    <text x="64" y="740" font-size="40" fill="#d6e2ef">04</text>
+    <text x="144" y="728" font-size="34" font-weight="600" fill="#ffffff">Publish</text>
+    <text x="144" y="772" font-size="26" fill="#ffffff">Merge to main → HTML + PDF</text>
+  </g>
+  <g id="archive">
+    <rect x="40" y="852" width="520" height="136" rx="6" fill="#ffffff" stroke="#d9e3ec" stroke-dasharray="5 4"/>
+    <text x="64" y="912" font-size="40" fill="#536577">05</text>
+    <text x="144" y="900" font-size="34" font-weight="600" fill="#1c3558">Archive</text>
+    <text x="144" y="944" font-size="26" fill="#536577">Zenodo DOI after 14+ days</text>
+  </g>
+</svg>
+</div>
+</main>
+</body>
+</html>

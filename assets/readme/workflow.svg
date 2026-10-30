@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="368" viewBox="0 0 1200 368" role="img" aria-labelledby="workflow-title workflow-desc" id="workflow-root">
+  <title id="workflow-title">From a finding to a shared record</title>
+  <desc id="workflow-desc">Submit an Issue or pull request, receive automated checks and AI screening, get a maintainer decision, publish by merging, and then register a Zenodo DOI through a separate scheduled job.</desc>
+  <defs>
+      <style>#workflow-root { color-scheme: light; }
+      #workflow-root { color: #1c2b3c; font-family: "Source Sans 3", Helvetica, Arial, sans-serif; }
+      #workflow-root .diagram-container { width: 100%; overflow-x: auto; }
+      @media print {
+#workflow-root .diagram-container { overflow-x: visible; }
+}</style>
+    <marker id="workflow-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L7 4 L1 7" fill="none" stroke="#536577" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <rect width="1200" height="368" rx="8" fill="#f3f6fa"/>
+  <text x="48" y="64" fill="#1c3558" font-family="Newsreader, Georgia, serif" font-size="40">From a finding to a shared record.</text>
+
+  <g transform="translate(0 -32)">
+  <g fill="none" stroke="#536577" stroke-width="2" marker-end="url(#workflow-arrow)">
+    <path d="M248 248 H268"/>
+    <path d="M476 248 H496"/>
+    <path d="M704 248 H724"/>
+    <path d="M932 248 H952" stroke-dasharray="4 4"/>
+  </g>
+
+  <g id="share">
+    <rect x="48" y="144" width="192" height="208" rx="6" fill="#ffffff" stroke="#d9e3ec"/>
+    <text x="68" y="188" font-size="32" fill="#536577">01</text>
+    <path d="M188 168 H208 V192 H188 Z M192 175 H204 M192 181 H204 M192 187 H200" fill="none" stroke="#244c76" stroke-width="2" stroke-linejoin="round"/>
+    <text x="68" y="240" font-size="30" font-weight="600" fill="#1c3558">Share</text>
+    <text x="68" y="280" font-size="22" fill="#536577">Issue or PR</text>
+    <text x="68" y="312" font-size="22" fill="#536577">Your work</text>
+  </g>
+  <g id="check">
+    <rect x="276" y="144" width="192" height="208" rx="6" fill="#ffffff" stroke="#d9e3ec"/>
+    <text x="296" y="188" font-size="32" fill="#536577">02</text>
+    <path d="M416 179 L424 187 L438 171" fill="none" stroke="#244c76" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="296" y="240" font-size="30" font-weight="600" fill="#1c3558">Check</text>
+    <text x="296" y="280" font-size="22" fill="#536577">Validate + PDF</text>
+    <text x="296" y="312" font-size="22" fill="#536577">AI screening</text>
+  </g>
+  <g id="confirm">
+    <rect x="504" y="144" width="192" height="208" rx="6" fill="#fff8e9" stroke="#d7ae62" stroke-width="2"/>
+    <text x="524" y="188" font-size="32" fill="#87621a">03</text>
+    <circle cx="656" cy="174" r="6" fill="none" stroke="#87621a" stroke-width="2"/>
+    <path d="M645 193 C645 181 667 181 667 193" fill="none" stroke="#87621a" stroke-width="2"/>
+    <text x="524" y="240" font-size="30" font-weight="600" fill="#1c3558">Confirm</text>
+    <text x="524" y="280" font-size="22" fill="#536577">Maintainer</text>
+    <text x="524" y="312" font-size="22" fill="#536577">decides</text>
+  </g>
+  <g id="publish">
+    <rect x="732" y="144" width="192" height="208" rx="6" fill="#244c76"/>
+    <text x="752" y="188" font-size="32" fill="#d6e2ef">04</text>
+    <path d="M868 177 H884 M876 169 V185 M866 191 H886" fill="none" stroke="#d7ae62" stroke-width="2" stroke-linecap="round"/>
+    <text x="752" y="240" font-size="30" font-weight="600" fill="#ffffff">Publish</text>
+    <text x="752" y="280" font-size="22" fill="#ffffff">Merge to main</text>
+    <text x="752" y="312" font-size="22" fill="#d6e2ef">HTML + PDF</text>
+  </g>
+  <g id="archive">
+    <rect x="960" y="144" width="192" height="208" rx="6" fill="#ffffff" stroke="#d9e3ec" stroke-dasharray="5 4"/>
+    <text x="980" y="188" font-size="32" fill="#536577">05</text>
+    <path d="M1096 168 H1120 V176 H1096 Z M1099 176 V193 H1117 V176 M1105 182 H1111" fill="none" stroke="#244c76" stroke-width="2" stroke-linejoin="round"/>
+    <text x="980" y="240" font-size="30" font-weight="600" fill="#1c3558">Archive</text>
+    <text x="980" y="280" font-size="22" fill="#536577">Zenodo DOI</text>
+    <text x="980" y="312" font-size="22" fill="#536577">After 14+ days</text>
+  </g>
+  </g>
+</svg>

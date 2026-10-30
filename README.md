@@ -1,19 +1,41 @@
-# Notes in Chemical Computation
+<p align="center">
+  <img src="assets/readme/ncc-header.svg" width="100%" alt="Notes in Chemical Computation — Small findings deserve to be shared. Open science, open source.">
+</p>
 
-An open, GitHub-native journal for computational chemistry, simulation, and AI for science.
-Authors submit through issues or pull requests, an AI editorial agent screens them for scope and spam, the maintainer approves, and the site, PDFs, AI translations, and
-Zenodo DOIs are produced automatically.
+**NCC is an open place to share computational chemistry, simulation, and AI-for-science results.**
+A useful calculation does not need a full-paper story: share what you computed, how you did it, and what came out.
+Free to read and publish, with versioned articles, reusable data, and a public record of every decision.
 
-- Site: https://kangmg.github.io/ncc/
-- For authors: [AUTHOR_GUIDE.md](AUTHOR_GUIDE.md), [examples/](examples/), [templates/paper.template.yml](templates/paper.template.yml)
-- AI agents: [AGENT_GUIDE.md](AGENT_GUIDE.md) (submission contract), [AGENTS.md](AGENTS.md) (repository instructions),
-  and on the site `/agents/`, `/agents.md`, `/llms.txt`, `/schema/paper.schema.json`
-- Knowledge base: [KNOWLEDGE_BASE.md](KNOWLEDGE_BASE.md) (`/api/v1/index.json`, `/articles/<id>.md`, `/llms-full.txt`) and the MCP
-  server `ncc-mcp` (`uvx --from "jtools[mcp] @ git+https://github.com/kangmg/ncc" ncc-mcp`)
-- Why this journal: [WHY.md](WHY.md)
-- Policies: [POLICY.md](POLICY.md), including the disclaimer
+**[Read the notes](https://kangmg.github.io/ncc/articles/)** ·
+**[Share a finding](https://github.com/kangmg/ncc/issues/new?template=1-submission.yml)** ·
+**[Why NCC?](WHY.md)**
 
-## How it works
+## Share a finding
+
+A convergence check, a careful benchmark, a negative result, a reaction pathway, or a small tool — short is fine.
+[See the manuscript examples](examples/) or start with the [submission form](https://github.com/kangmg/ncc/issues/new?template=1-submission.yml).
+The Issue route needs no clone; a pull request is also welcome.
+
+Agents can run the work, write it up, and submit it. Each manuscript still names a responsible human author
+with a GitHub handle and discloses agent contributions. See the [author guide](AUTHOR_GUIDE.md) and
+[agent guide](AGENT_GUIDE.md) for the full contract.
+
+## How sharing works
+
+<picture>
+  <source media="(max-width: 600px)" srcset="assets/readme/workflow-mobile.svg">
+  <img src="assets/readme/workflow.svg" width="100%" alt="Share via Issue or pull request → automated validation, PDF preview, and AI screening → maintainer decision → merge to main publishes HTML and PDF → a separate daily job considers Zenodo DOI registration after the 14-day grace period. Currently Zenodo Sandbox; screening is not peer review.">
+</picture>
+
+AI screening checks scope, spam, and integrity; **articles are not peer-reviewed**.
+The maintainer makes the publication decision, and merging into `main` publishes the work.
+Non-English manuscripts can receive a clearly marked AI English translation; the original remains the version of record.
+
+**DOI status:** registration currently uses **Zenodo Sandbox**, not production DOIs. A daily job considers eligible
+versions after 14 days from their recorded date, subject to configuration. See [versions and DOIs](AUTHOR_GUIDE.md#versions-withdrawal-and-dois).
+
+<details>
+<summary>Workflow details and maintainer commands</summary>
 
 ```
 Issue form ──► submission-preview.yml ──► bot comment: validation + paper.yml + preview PDF
@@ -27,26 +49,30 @@ Daily ──► doi.yml ──► Zenodo DOI for versions older than the grace p
 
 Merging into `main` is the only publication gate. Other commands in an issue (owner only): `/revise` and `/decline`.
 
-## Repository layout
+</details>
 
-| Path | Content |
+## Find your starting point
+
+| You want to… | Start here |
 |---|---|
-| `journal.yml` | Name, maintainer, URLs, subjects, review and translation models, DOI settings |
-| `tags.yml` | Canonical tag names and aliases; `journal.yml` maps tags to subjects |
-| `schema/` | JSON Schemas for `paper.yml` and `record.yml` |
-| `papers/<YYYY-NNNN>/record.yml` | Editorial record: dates, status, versions, DOIs (bot-managed) |
-| `papers/<YYYY-NNNN>/v<n>/` | One folder per version: `paper.yml`, figures, `translation.en.yml` |
-| `submissions/` | Pull-request submissions waiting for an ID (moved into `papers/` on merge) |
-| `examples/` | Rendered example manuscripts for each body format |
-| `AUTHOR_GUIDE.md`, `AGENT_GUIDE.md`, `POLICY.md`, `WHY.md`, `KNOWLEDGE_BASE.md` | Rendered at `/guide/`, `/agents/`, `/policy/`, `/why/`, `/knowledge/` |
-| `templates/typst/journal.typ` | PDF template; `templates/csl/` holds the ACS citation style |
-| `tools/jtools/` | Python CLI: validate, build, pdf, translate, doi, issue, promote, authorship |
-| `site/` | Astro site that renders the exported data |
-| `.github/` | Issue forms and workflows |
+| Share a result | [Author guide](AUTHOR_GUIDE.md) · [Examples](examples/) · [Manuscript template](templates/paper.template.yml) |
+| Submit with an agent | [Agent guide](AGENT_GUIDE.md) · [Repository instructions](AGENTS.md) · [Manuscript schema](schema/paper.schema.json) |
+| Read and reuse the knowledge | [Published notes](https://kangmg.github.io/ncc/articles/) · [Knowledge base](KNOWLEDGE_BASE.md) |
+| Understand the ground rules | [Why NCC](WHY.md) · [Policies and disclaimer](POLICY.md) |
 
-## Local use
+The knowledge base exposes articles as structured data and Markdown, with [`llms.txt`](https://kangmg.github.io/ncc/llms.txt),
+[`llms-full.txt`](https://kangmg.github.io/ncc/llms-full.txt), and an [API index](https://kangmg.github.io/ncc/api/v1/index.json).
+To let an agent search and read it through MCP:
 
-For submissions, use the clone-free Issue form recommended in [AUTHOR_GUIDE.md](AUTHOR_GUIDE.md).
+```bash
+uvx --from "jtools[mcp] @ git+https://github.com/kangmg/ncc" ncc-mcp
+```
+
+## Submission details
+
+<details>
+<summary>Supporting files, size limits, and submitting by pull request</summary>
+
 Small local SI goes under `si/` and allows `.xyz`, `.cif`, `.pdb`, `.mol`, `.sdf`, `.gif`, `.csv`, `.txt`, `.json`,
 and `.pdf`. Manuscript assets and local SI share a whole-version budget of 5 MiB per file, 15 MiB total, and
 10 files, excluding `paper.yml`, translation metadata (`translation.*.yml`), and generated PDFs; submitted PDFs
@@ -88,7 +114,12 @@ Required data must be public at publication. Article DOI registration is schedul
 recorded version date, subject to configuration, not at an exact wall-clock time. Recorded dates aren't
 automatically corrected to merge dates. Currently `doi.sandbox: true` selects Zenodo sandbox.
 
-### Full checkout for journal development
+</details>
+
+## Develop and operate the platform
+
+<details>
+<summary>Run locally and check changes</summary>
 
 Requirements: [uv](https://docs.astral.sh/uv/), pandoc 3.x, Typst 0.15+, Node 22+.
 
@@ -97,11 +128,45 @@ uv sync
 uv run jtools validate                 # all articles and examples
 uv run jtools pdf examples/research-article --out /tmp/example.pdf
 uv run jtools build                    # HTML, PDFs, subjects -> site/src/generated, site/public/papers
-cd site && npm install && npm run dev  # http://localhost:4321/journal/
+cd site && npm install && npm run dev  # http://localhost:4321/ncc/
 uv run pytest -q
 ```
 
-## One-time setup on GitHub
+The journal development checks are:
+
+```bash
+uv run pytest -q
+uv run jtools validate
+uvx basedpyright
+uv run jtools build
+(cd site && npm run build && npx astro check)
+actionlint
+```
+
+</details>
+
+<details>
+<summary>Repository map</summary>
+
+| Path | Content |
+|---|---|
+| `journal.yml` | Name, maintainer, URLs, subjects, review and translation models, DOI settings |
+| `tags.yml` | Canonical tag names and aliases; `journal.yml` maps tags to subjects |
+| `schema/` | JSON Schemas for `paper.yml` and `record.yml` |
+| `papers/<YYYY-NNNN>/record.yml` | Editorial record: dates, status, versions, DOIs (bot-managed) |
+| `papers/<YYYY-NNNN>/v<n>/` | One folder per version: `paper.yml`, figures, `translation.en.yml` |
+| `submissions/` | Pull-request submissions waiting for an ID (moved into `papers/` on merge) |
+| `examples/` | Rendered example manuscripts for each body format |
+| `AUTHOR_GUIDE.md`, `AGENT_GUIDE.md`, `POLICY.md`, `WHY.md`, `KNOWLEDGE_BASE.md` | Rendered at `/guide/`, `/agents/`, `/policy/`, `/why/`, `/knowledge/` |
+| `templates/typst/journal.typ` | PDF template; `templates/csl/` holds the ACS citation style |
+| `tools/jtools/` | Python CLI: validate, build, pdf, translate, doi, issue, promote, authorship |
+| `site/` | Astro site that renders the exported data |
+| `.github/` | Issue forms and workflows |
+
+</details>
+
+<details>
+<summary>One-time GitHub setup</summary>
 
 1. Create the repository `kangmg/ncc` (public) and push this folder.
 2. Settings → Pages → Source: **GitHub Actions**.
@@ -120,11 +185,16 @@ uv run pytest -q
    To use another OpenAI-compatible provider, set `TRANSLATE_BASE_URL`, `TRANSLATE_MODEL`, and `TRANSLATE_API_KEY`.
 7. Optional: enable Discussions and fill the `comments.giscus` ids in `journal.yml`.
 
-## Changing the name
+</details>
+
+<details>
+<summary>Journal name and custom domains</summary>
+
+### Changing the name
 
 Edit `journal.yml` (title, abbreviation, `github.repo`). Everything else reads from it.
 
-## Moving to a custom domain
+### Moving to a custom domain
 
 The site, PDFs, citations, feeds, and DOI metadata read the address from `journal.yml`. One command updates it
 and the addresses spelled out in the guides, issue forms, and schema:
@@ -144,3 +214,5 @@ Then, once:
 
 Published papers are not rewritten. Their old links and the URLs already registered with Zenodo keep
 working because GitHub Pages redirects the github.io address to the custom domain.
+
+</details>
