@@ -5,20 +5,19 @@ import io
 import mimetypes
 import re
 import shutil
-import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
 
-from . import config, model, validate
+from . import assets, config, model, validate
 
 NO_RESPONSE = "_No response_"
 TYPE_BY_LABEL = {label: key for key, label in model.ARTICLE_TYPES.items()}
 ALLOWED_HOSTS = {"github.com", "user-images.githubusercontent.com", "private-user-images.githubusercontent.com",
                  "objects.githubusercontent.com"}
-MAX_DOWNLOAD = 25 * 1024 * 1024
+MAX_DOWNLOAD = assets.MAX_FILE_BYTES
 LINK_RE = re.compile(r"(!?)\[([^\]]*)\]\((https?://[^)\s]+)\)")
 IMG_TAG_RE = re.compile(r"<img\b[^>]*?\bsrc=\"(https?://[^\"]+)\"[^>]*>", re.I)
 ALT_RE = re.compile(r"\balt=\"([^\"]*)\"", re.I)
@@ -125,7 +124,7 @@ def parse_sections(markdown: str) -> list[dict]:
     return sections
 
 
-def _download(url: str, dest_dir: Path, stem: str) -> Path:
+def _download(url: str, dest_dir: Path, stem: str, *, supplementary: bool = False) -> Path:
     host = urlparse(url).hostname or ""
     if host not in ALLOWED_HOSTS:
         raise IssueError(f"refusing to download from {host}; attach files to the issue instead")
@@ -136,18 +135,31 @@ def _download(url: str, dest_dir: Path, stem: str) -> Path:
             raise IssueError(f"attachment redirected to unexpected host {final_host}")
         content_type = resp.headers.get("Content-Type", "").split(";")[0].strip()
         suffix = Path(urlparse(url).path).suffix or mimetypes.guess_extension(content_type) or ""
+        if supplementary and not Path(urlparse(url).path).suffix:
+            suffix = Path(stem).suffix
         if suffix == ".svg+xml":
             suffix = ".svg"
+        allowed = assets.SI_SUFFIXES if supplementary else assets.MANUSCRIPT_SUFFIXES
+        if suffix.lower() not in allowed or (Path(stem).suffix and Path(stem).suffix.lower() not in allowed):
+            raise IssueError("unsupported attachment type; use manuscript files or supported small SI, not archives")
         data = io.BytesIO()
         for chunk in resp.iter_content(65536):
             data.write(chunk)
             if data.tell() > MAX_DOWNLOAD:
-                raise IssueError(f"attachment larger than {MAX_DOWNLOAD // 1024 // 1024} MB: {url}")
+                raise IssueError(f"attachment larger than 5 MiB: {url}")
     safe = re.sub(r"[^A-Za-z0-9_.-]+", "-", stem).strip("-.") or "file"
+    if data.getvalue().startswith((b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08", b"\x1f\x8b", b"7z\xbc\xaf\x27\x1c", b"Rar!")):
+        raise IssueError("archive attachments are not accepted, even when renamed")
     target = dest_dir / (safe if safe.endswith(suffix) else safe + suffix)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(data.getvalue())
     return target
+
+
+def _check_budget(dest: Path) -> None:
+    problems = assets.file_problems(dest)
+    if problems:
+        raise IssueError("; ".join(problems))
 
 
 def localise_images(markdown: str, dest: Path, conv: Conversion, download: bool) -> str:
@@ -164,6 +176,7 @@ def localise_images(markdown: str, dest: Path, conv: Conversion, download: bool)
         if not download:
             return m.group(0)
         path = _download(url, dest / "figures", f"figure-{counter['n']}")
+        _check_budget(dest)
         conv.downloaded.append(str(path.relative_to(dest)))
         return f"![{alt}]({path.relative_to(dest).as_posix()})"
 
@@ -177,36 +190,54 @@ def attachments(text: str | None) -> list[tuple[str, str]]:
     return found
 
 
-def _extract_zip(path: Path, dest: Path) -> list[str]:
-    names = []
-    with zipfile.ZipFile(path) as zf:
-        for info in zf.infolist():
-            if info.is_dir() or info.filename.startswith("__MACOSX"):
-                continue
-            target = (dest / info.filename).resolve()
-            if not target.is_relative_to(dest.resolve()):
-                raise IssueError(f"zip entry escapes the manuscript folder: {info.filename}")
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(zf.read(info))
-            names.append(str(target.relative_to(dest.resolve())))
-    path.unlink()
-    return names
-
-
 def fetch_files(text: str | None, dest: Path, conv: Conversion, download: bool) -> list[str]:
     files: list[str] = []
     for name, url in attachments(text):
+        if Path(name).suffix.lower() not in assets.MANUSCRIPT_SUFFIXES:
+            raise IssueError("attach individual manuscript files here; use Supporting information for small SI, external records for archives")
         if not download:
             files.append(name)
             continue
+        if len(assets.manuscript_files(dest)) >= assets.MAX_FILES:
+            raise IssueError(f"manuscript has more than {assets.MAX_FILES} files")
         is_image = re.search(r"\.(png|jpe?g|gif|svg|webp)$", name, re.I) or "/assets/" in url
         path = _download(url, dest / ("figures" if is_image else ""), name)
-        if path.suffix == ".zip":
-            files += _extract_zip(path, dest)
-        else:
-            files.append(str(path.relative_to(dest)))
+        _check_budget(dest)
+        files.append(str(path.relative_to(dest)))
         conv.downloaded.append(str(path.relative_to(dest)))
     return files
+
+
+def parse_supporting_information(text: str, dest: Path | None = None, download: bool = False) -> list[dict[str, str]]:
+    """Download explicitly attached GitHub SI; preserve external records as links."""
+    if text.strip().lower() == "none":
+        return []
+    entries = []
+    for line in text.splitlines():
+        if not line.strip():
+            continue
+        target, separator, description = line.partition("|")
+        target, description = target.strip(), description.strip()
+        attachment = LINK_RE.fullmatch(target)
+        url = attachment.group(3) if attachment else target
+        parsed = urlparse(url)
+        if not separator or parsed.scheme != "https" or not parsed.hostname or not description:
+            raise IssueError("Supporting information: use HTTPS URL | description, one entry per line")
+        if parsed.hostname == "github.com" and parsed.path.startswith("/user-attachments/"):
+            name = attachment.group(2) if attachment else Path(parsed.path).name
+            if Path(name).suffix.lower() not in assets.SI_SUFFIXES:
+                raise IssueError("SI attachments need a filename with a supported extension, for example [structure.xyz](URL)")
+            if download:
+                if dest is None:
+                    raise IssueError("SI download requires a manuscript folder")
+                path = _download(url, dest / "si", name, supplementary=True)
+                _check_budget(dest)
+                entries.append({"file": path.relative_to(dest).as_posix(), "description": description})
+            else:
+                entries.append({"file": "si/" + Path(name).name, "description": description})
+        else:
+            entries.append({"url": url, "description": description})
+    return entries
 
 
 def parse_agents(text: str | None) -> list[dict]:
@@ -304,6 +335,9 @@ def convert_submission(fields: dict, dest: Path, download: bool = True) -> Conve
         paper["ai_use"] = fields.get("Use of AI tools")
         paper["ai_contributions"] = parse_ai_contributions(fields)
         paper["mint_doi"] = bool(checked(fields.get("DOI")))
+    if fields.get("Supporting information"):
+        paper["supporting_information"] = parse_supporting_information(fields["Supporting information"] or "", dest, download)
+    _check_budget(dest)
     conv.paper = {k: v for k, v in paper.items() if v is not None}
     return conv
 
@@ -314,6 +348,8 @@ def convert_revision(fields: dict, previous: model.Version, dest: Path, download
     shutil.copytree(previous.dir, dest, ignore=shutil.ignore_patterns("translation.*.yml"))
     conv = Conversion(paper=dict(previous.paper))
     fmt = fields.get("Manuscript format") or ""
+    if fields.get("Supporting information") and (dest / "si").exists():
+        shutil.rmtree(dest / "si")
     files = fetch_files(fields.get("Files"), dest, conv, download)
     if fmt.startswith("Complete paper.yml"):
         conv.paper = config.loads_yaml(localise_images(fields.get("Manuscript") or "", dest, conv, download))
@@ -329,6 +365,11 @@ def convert_revision(fields: dict, previous: model.Version, dest: Path, download
         conv.paper["references"] = refs
     if bib:
         conv.paper["bibliography"] = bib
+    if fields.get("Supporting information"):
+        conv.paper["supporting_information"] = parse_supporting_information(fields["Supporting information"] or "", dest, download)
+    if fields.get("Data availability"):
+        conv.paper["data_availability"] = fields["Data availability"]
+    _check_budget(dest)
     conv.paper["changelog"] = fields.get("Changelog")
     return conv
 

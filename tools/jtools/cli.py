@@ -211,7 +211,7 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("domain", help="move the site to another address, e.g. a custom domain")
     p.add_argument("url", help="scheme and host, e.g. https://journal.example.com")
-    p.add_argument("--base", default="", help='path under the host; "" for a custom domain (default), "/journal" for a project page')
+    p.add_argument("--base", default="", help='path under the host; "" for a custom domain (default), "/ncc" for a project page')
     p.set_defaults(func=cmd_domain)
 
     args = parser.parse_args(argv)

@@ -2,7 +2,7 @@ Everything this journal publishes is open knowledge. Besides the article pages a
 available as structured data and as plain Markdown, and an MCP server lets AI agents search and read the journal
 directly. Think of it as a wiki whose entries are citable, versioned articles: each entry has a stable ID, a version
 history, a DOI, a licence, subjects and keywords that link it to related entries, and a statement of how it was
-screened. The rules for using it are in the [editorial policy](https://kangmg.github.io/journal/policy/#knowledge-base).
+screened. The rules for using it are in the [editorial policy](https://kangmg.github.io/ncc/policy/#knowledge-base).
 
 ## Endpoints
 
@@ -10,13 +10,13 @@ All endpoints are static files: no account, no key, no rate limit beyond the hos
 
 | Resource | Address |
 |---|---|
-| Index of articles and subjects (JSON) | [`/api/v1/index.json`](https://kangmg.github.io/journal/api/v1/index.json) |
-| One article, latest version (JSON) | `/api/v1/articles/<id>.json`, e.g. [`2026-0001.json`](https://kangmg.github.io/journal/api/v1/articles/2026-0001.json) |
+| Index of articles and subjects (JSON) | [`/api/v1/index.json`](https://kangmg.github.io/ncc/api/v1/index.json) |
+| One article, latest version (JSON) | `/api/v1/articles/<id>.json`, e.g. [`2026-0001.json`](https://kangmg.github.io/ncc/api/v1/articles/2026-0001.json) |
 | One article, specific version (JSON) | `/api/v1/articles/<id>v<n>.json` |
 | One article as Markdown with YAML front matter | `/articles/<id>.md` or `/articles/<id>v<n>.md` |
-| Full text of all published articles | [`/llms-full.txt`](https://kangmg.github.io/journal/llms-full.txt) |
-| Short index for language models | [`/llms.txt`](https://kangmg.github.io/journal/llms.txt) |
-| Feed of new articles with full text | [`/atom.xml`](https://kangmg.github.io/journal/atom.xml) |
+| Full text of all published articles | [`/llms-full.txt`](https://kangmg.github.io/ncc/llms-full.txt) |
+| Short index for language models | [`/llms.txt`](https://kangmg.github.io/ncc/llms.txt) |
+| Feed of new articles with full text | [`/atom.xml`](https://kangmg.github.io/ncc/atom.xml) |
 
 An article record contains the metadata (title, authors, affiliations, subjects, keywords, dates, DOI, licence), the
 abstract, the full text in Markdown (or the extracted text of a PDF submission), references, data and code
@@ -32,7 +32,7 @@ The MCP server runs on your machine and reads the public endpoints above. It nee
 Claude Code:
 
 ```bash
-claude mcp add ncc -- uvx --from "jtools[mcp] @ git+https://github.com/kangmg/journal" ncc-mcp
+claude mcp add ncc -- uvx --from "jtools[mcp] @ git+https://github.com/kangmg/ncc" ncc-mcp
 ```
 
 Claude Desktop, Cursor, and other clients that use a JSON configuration:
@@ -42,7 +42,7 @@ Claude Desktop, Cursor, and other clients that use a JSON configuration:
   "mcpServers": {
     "ncc": {
       "command": "uvx",
-      "args": ["--from", "jtools[mcp] @ git+https://github.com/kangmg/journal", "ncc-mcp"]
+      "args": ["--from", "jtools[mcp] @ git+https://github.com/kangmg/ncc", "ncc-mcp"]
     }
   }
 }

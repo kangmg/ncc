@@ -91,7 +91,7 @@ def body_markdown(paper: dict, base: Path, overrides: dict | None = None) -> str
         if key == "ai_use" and (statement := model.ai_statement(paper)):
             back.append(f"## AI Contribution\n\n{statement}\n")
     if src.get("supporting_information"):
-        rows = "\n".join(f"- [{i['file']}]({i['file']}): {i['description']}" for i in src["supporting_information"])
+        rows = "\n".join(f"- [{i['description']}]({i['url'] if 'url' in i else i['file']})" for i in src["supporting_information"])
         back.append(f"## Supporting Information\n\n{rows}\n")
     if back:
         parts.append("::: {.backmatter}\n\n" + "\n".join(back) + "\n:::\n")
@@ -110,6 +110,9 @@ def render_html(paper: dict, base: Path, workdir: Path, image_prefix: str, overr
     src = {**paper, **(overrides or {})}
     cite = citation_args(paper, base, workdir)
     body_md = preprocess(body_markdown(paper, base, overrides), "html", image_prefix)
+    for item in paper.get("supporting_information", []):
+        if "file" in item:
+            body_md = body_md.replace(f"]({item['file']})", f"]({image_prefix}{item['file']})")
     body = pandoc(body_md, "html5", ["--math-method=katex", "--shift-heading-level-by=1", *cite]) if body_md.strip() else ""
     abstract = pandoc(src["abstract"], "html5", ["--math-method=katex"])
     return {"body": body, "abstract": abstract}

@@ -18,10 +18,10 @@ journal:
 
 site:
   url: "https://kangmg.github.io"
-  base: "/journal"         # GitHub project page path; "" for a custom domain root
+  base: "/ncc"         # GitHub project page path; "" for a custom domain root
 
 github:
-  repo: "kangmg/journal"
+  repo: "kangmg/ncc"
   branch: "main"
 
 defaults:
@@ -86,7 +86,7 @@ doi:
 comments:
   provider: null           # "giscus" once Discussions are enabled
   giscus:
-    repo: "kangmg/journal"
+    repo: "kangmg/ncc"
     repo_id: ""
     category: "Article comments"
     category_id: ""

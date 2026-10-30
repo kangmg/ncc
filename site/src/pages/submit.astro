@@ -35,8 +35,9 @@ const repo = `https://github.com/${journal.github.repo}`;
       <li><span><b>Screening.</b> An AI editorial agent checks scope, that the submission reports computational results, and that the minimum information is there, and posts its report in the issue. It does not grade the research. Comment <code>/review</code> after adding anything it asks for.</span></li>
       <li><span><b>Acceptance.</b> The maintainer reads the screening report and the manuscript, then adds the <code>accepted</code> label. A pull request with your article is opened;
       non-English manuscripts get an English AI translation at this step.</span></li>
-      <li><span><b>Publication.</b> Merging the pull request publishes the HTML and PDF. The DOI follows {journal.doi.delay_days} days later,
-      so you can correct mistakes before it is registered.</span></li>
+      <li><span><b>Publication.</b> Merging the pull request publishes the HTML and PDF. Versions become eligible for a DOI
+      {journal.doi.delay_days} days after their recorded version date; the daily DOI workflow handles registration.
+      See the <a href={u("/policy/")}>policy</a> for timing and archival details.</span></li>
     </ol>
 
     <h2>After publication</h2>

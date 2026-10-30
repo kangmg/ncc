@@ -7,7 +7,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-from . import config, model, refs
+from . import assets, config, model, refs
 
 IMAGE_RE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)")
 CITE_RE = re.compile(r"(?<![\w@])@([A-Za-z0-9_][A-Za-z0-9_:.-]*[A-Za-z0-9_])")
@@ -64,14 +64,18 @@ def validate_paper(paper: dict, base: Path, where: str, resolve_dois: bool = Fal
         target = _safe_relative(base, rel)
         if target is None:
             findings.append(Finding("error", where, f"{label} `{rel}` must be a relative path inside the manuscript folder"))
-        elif not target.exists():
+        elif not target.is_file():
             findings.append(Finding("error", where, f"{label} `{rel}` not found"))
 
     for key in ("toc_graphic", "body_file", "pdf", "bibliography"):
         if key in paper:
             check_file(paper[key], key)
     for item in paper.get("supporting_information", []):
-        check_file(item["file"], "supporting file")
+        if "file" in item:
+            check_file(item["file"], "supporting file")
+            if ".." in Path(item["file"]).parts:
+                findings.append(Finding("error", where, "supporting files must stay under si/"))
+    findings += [Finding("error", where, message) for message in assets.file_problems(base)]
 
     bodies = markdown_bodies(paper, base)
     for body in bodies:

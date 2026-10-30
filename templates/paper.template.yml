@@ -1,5 +1,9 @@
-# Copy this file to submissions/<short-name>/paper.yml (pull request) or paste it into the
-# issue form with "Complete paper.yml". Delete the optional fields you do not use.
+# Recommended: paste this into the clone-free Issue form with "Complete paper.yml".
+# Optional: copy to submissions/<short-name>/paper.yml for a pull request.
+# Delete the optional fields you don't use.
+# Manuscript assets + local SI share 5 MiB/file, 15 MiB/whole version, 10 files/whole version.
+# Retained revision files count. Exclude paper.yml,
+# translation.*.yml, and generated PDFs; a submitted PDF counts. No ZIP or other direct archives.
 title: "Your title: say what you found"
 article_type: computational-note    # research-article | letter | computational-note | software | negative-result | tutorial | perspective
 language: en                        # any BCP 47 code; non-English gets an AI translation into English
@@ -35,7 +39,8 @@ references:
     doi: 10.1103/PhysRevLett.77.3865
 # bibliography: references.bib      # alternative to the list above
 
-data_availability: "Inputs and scripts: https://github.com/you/project"
+# Required data must be public at article publication, even if a data DOI is pending.
+data_availability: "Inputs, outputs, and scripts: https://github.com/you/project"
 code_availability: "https://github.com/you/project"
 ai_use: "None."
 # Required when AI did more than light editing. See AGENT_GUIDE.md.
@@ -53,7 +58,22 @@ competing_interests: "The authors declare no competing interests."
 acknowledgments: ""
 funding: ""
 supporting_information:
-  - file: si/structures.zip
+  # Each entry: description and exactly one of file or url. PR local SI uses file under si/.
+  # Allowed local SI: xyz,cif,pdb,mol,sdf,gif,csv,txt,json,pdf.
+  # Larger SI: external HTTPS URL, preferably a version DOI. Not auto downloaded.
+  # External records may contain archives. Local SI is archived with sources/assets/PDFs;
+  # external SI is only linked. Ordinary clones include local SI; partial+sparse can omit it.
+  # Server Git storage still grows. See AUTHOR_GUIDE.md for the sparse submission workflow.
+  # Issue field: one URL | description per line, external or a GitHub attachment link.
+  # Local attachment filename must include its extension; GIF link label must end .gif.
+  # Attachments are fetched into si/ and budgeted. Revision blank retains; None clears.
+  # Complete paper.yml is authoritative unless the separate SI field is supplied.
+  - file: si/structure.xyz
+    description: Relaxed structure. Replace or remove this example and supply the file.
+  - url: https://doi.org/10.5281/zenodo.1234567
     description: Relaxed structures in extended XYZ format.
+# Article DOI: daily scheduled registration after 14 days from the recorded version date,
+# subject to config, not an exact wall-clock guarantee; no automatic merge-date correction.
+# Currently doi.sandbox: true uses Zenodo sandbox. Independent of any data DOI.
 mint_doi: true
 # changelog: "Required from version 2 onwards: what changed and why."

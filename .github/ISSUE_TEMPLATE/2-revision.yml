@@ -7,7 +7,12 @@ body:
     attributes:
       value: |
         Only listed authors can request a revision. Fill in only what changed; everything else is
-        carried over from the latest version. Small typo fixes can be a pull request instead.
+        carried over from the latest version. This clone-free Issue form is recommended; a pull request is optional.
+        Required data must be public at article publication, even if a data DOI is pending. The article DOI has a
+        daily registration schedule after 14 days from the recorded version date, subject to configuration and independent of any data DOI.
+        This isn't an exact wall-clock guarantee; recorded dates aren't automatically corrected to merge dates.
+        Currently doi.sandbox: true uses Zenodo sandbox.
+        The journal archives manuscript source, local SI, direct assets, and article PDFs; external SI is only linked.
   - type: input
     id: article_id
     attributes:
@@ -48,11 +53,31 @@ body:
     id: manuscript
     attributes:
       label: Manuscript
+      description: "A complete paper.yml is authoritative, including its SI list, unless the separate Supporting information field is supplied."
       render: markdown
   - type: textarea
     id: files
     attributes:
       label: Files
+      description: |
+        Attach individual manuscript files or figures. Limits: 5 MiB/file, 15 MiB/version, 10 files/version,
+        excluding paper.yml, translation.*.yml, and generated PDFs. Submitted PDFs count.
+        ZIP and other direct archives are rejected; external SI records may contain archives.
+        Manuscript assets and local SI share these limits across the whole revised version, including retained files.
+  - type: textarea
+    id: supporting_information
+    attributes:
+      label: Supporting information
+      description: |
+        For field-based revisions, leave blank to retain the existing SI list. Enter `None` to clear it,
+        or replace it with one `URL | description` per line. Larger SI uses external HTTPS URLs, preferably
+        version DOIs; external SI is linked, not automatically downloaded. For small local SI, attach a
+        GitHub file link using the same syntax with an explicit extension-bearing filename; a GIF link label
+        must end in `.gif`. Allowed local SI: xyz,cif,pdb,mol,sdf,gif,csv,txt,json,pdf. Attachments are fetched
+        into si/ and share the whole-version budget above. PR entries have description and exactly one of
+        file (si/name.xyz) or url. A complete paper.yml is authoritative unless this separate field is
+        supplied, which replaces its SI list.
+      placeholder: "https://doi.org/10.5281/zenodo.1234567 | Revised inputs, outputs, and analysis scripts"
   - type: textarea
     id: references
     attributes:

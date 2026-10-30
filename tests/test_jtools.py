@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from jtools import config, issue, model, render, translate, validate, zenodo
+from jtools import assets, config, export, issue, model, render, translate, validate, zenodo
 
 FORM = """### Title
 
@@ -132,6 +132,141 @@ def _paper(**extra):
              "abstract": "x" * 60, "tags": ["DFT"], "data_availability": "On request.", "ai_use": "Agent-led.",
              "sections": [{"title": "S", "body": "Text."}]}
     return paper | extra
+
+
+def test_external_si_stays_metadata_and_exports_without_download(tmp_path, monkeypatch):
+    url = "https://zenodo.org/records/12345"
+    entries = issue.parse_supporting_information(f"{url} | Structures and movie")
+    paper = _paper(supporting_information=entries)
+    assert not [f for f in validate.validate_paper(paper, tmp_path, "p") if f.level == "error"]
+    article = model.discover_articles()[0]
+    version = model.Version(1, tmp_path, paper, article.latest.entry, None)
+    monkeypatch.setattr(export, "_public_dir", lambda a, v: (tmp_path / "public", "/papers/test/"))
+    monkeypatch.setattr(export.render, "render_html", lambda *args: {"abstract": "", "body": ""})
+    data = export.export_version(article, version, False)
+    assert data["supporting_information"][0]["url"] == url
+    assert list(tmp_path.iterdir()) == []
+    assert url in render.body_markdown(paper, tmp_path)
+    related = zenodo.deposition_metadata(article, version, "10.1234/test")["related_identifiers"]
+    assert any(i["identifier"] == url and i["relation"] == "isSupplementedBy" for i in related)
+
+
+@pytest.mark.parametrize("entry", [{"file": "si/movie.mp4", "description": "Movie"},
+                                  {"url": "file:///tmp/movie.mp4", "description": "Movie"},
+                                  {"url": "https://example.org/movie.mp4", "description": ""}])
+def test_si_requires_external_https_reference(tmp_path, entry):
+    assert any(f.level == "error" for f in validate.validate_paper(_paper(supporting_information=[entry]), tmp_path, "p"))
+
+
+def test_revision_si_retained_replaced_and_cleared(tmp_path):
+    previous = model.discover_articles()[0].latest
+    previous.paper = _paper(supporting_information=[{"url": "https://example.org/old", "description": "Old"}])
+    fields = {"Manuscript format": "No change", "Changelog": "New data"}
+    conv = issue.convert_revision(fields, previous, tmp_path / "v2", download=False)
+    assert conv.paper["supporting_information"] == previous.paper["supporting_information"]
+    fields["Supporting information"] = "https://example.org/new | New"
+    assert issue.convert_revision(fields, previous, tmp_path / "v2", False).paper["supporting_information"][0]["url"].endswith("/new")
+    fields["Supporting information"] = "None"
+    assert issue.convert_revision(fields, previous, tmp_path / "v2", False).paper["supporting_information"] == []
+
+
+@pytest.mark.parametrize("suffix", ["zip", "ZIP", "tar", "gz", "7z", "mp4", "xyz"])
+def test_direct_non_manuscript_uploads_rejected(tmp_path, suffix):
+    with pytest.raises(issue.IssueError):
+        issue.fetch_files(f"[data.{suffix}](https://github.com/user-attachments/files/1/data.{suffix})", tmp_path, issue.Conversion({}), False)
+    (tmp_path / f"data.{suffix}").write_bytes(b"x")
+    assert any(f.level == "error" for f in validate.validate_paper(_paper(), tmp_path, "p"))
+
+
+def test_manuscript_budget_boundaries(tmp_path):
+    for n in range(3):
+        with (tmp_path / f"figure{n}.png").open("wb") as fh:
+            fh.truncate(assets.MAX_FILE_BYTES)
+    (tmp_path / "paper.yml").write_text("metadata")
+    assert assets.file_problems(tmp_path) == []
+    with (tmp_path / "figure0.png").open("ab") as fh:
+        fh.write(b"x")
+    problems = assets.file_problems(tmp_path)
+    assert any("5 MiB" in p for p in problems) and any("15 MiB" in p for p in problems)
+    for path in tmp_path.glob("figure*.png"):
+        path.unlink()
+    for n in range(assets.MAX_FILES):
+        (tmp_path / f"figure{n}.png").write_bytes(b"x")
+    assert assets.file_problems(tmp_path) == []
+    (tmp_path / "extra.pdf").write_bytes(b"x")
+    assert any("10 files" in p for p in assets.file_problems(tmp_path))
+
+
+def test_stream_download_rejects_oversize_and_disguised_zip(tmp_path, monkeypatch):
+    class Response:
+        url = "https://github.com/user-attachments/files/1/figure.png"
+        headers = {"Content-Type": "image/png"}
+        chunks = [b"x" * (assets.MAX_FILE_BYTES + 1)]
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def raise_for_status(self):
+            pass
+
+        def iter_content(self, size):
+            return iter(self.chunks)
+
+    response = Response()
+    monkeypatch.setattr(issue.requests, "get", lambda *args, **kwargs: response)
+    with pytest.raises(issue.IssueError):
+        issue._download(response.url, tmp_path, "figure.png")
+    response.chunks = [b"PK\x03\x04renamed archive"]
+    with pytest.raises(issue.IssueError):
+        issue._download(response.url, tmp_path, "figure.png")
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_zenodo_archives_source_manifest_but_not_external_si(tmp_path, monkeypatch):
+    paper = _paper(supporting_information=[{"url": "https://example.org/movie.mp4", "description": "Movie"}])
+    config.dump_yaml(paper, tmp_path / "paper.yml")
+    (tmp_path / "figures").mkdir()
+    (tmp_path / "figures" / "plot.svg").write_text("<svg/>")
+    (tmp_path / "si").mkdir()
+    (tmp_path / "si" / "structure.xyz").write_text("1\nHydrogen\nH 0 0 0\n")
+    article = model.discover_articles()[0]
+    version = model.Version(1, tmp_path, paper, {"published": "2026-10-30"}, None)
+    uploaded = {}
+
+    class Client(zenodo.Client):
+        def __init__(self):
+            pass
+
+        def create(self):
+            return {"id": 123}
+
+        def reserve_doi(self, draft):
+            return "10.1234/test"
+
+        def upload(self, draft, path, name=None):
+            uploaded[name or path.name] = path.read_bytes()
+
+        def set_metadata(self, deposition_id, metadata):
+            return metadata
+
+        def publish(self, deposition_id):
+            return {"id": deposition_id, "doi": "10.1234/test"}
+
+    def build_pdf(article, version, out):
+        out.write_bytes(b"%PDF")
+        return out
+
+    monkeypatch.setattr(zenodo.pdf, "build_pdf", build_pdf)
+    monkeypatch.setattr(zenodo, "_save_record", lambda article: None)
+    assert zenodo.mint(Client(), article, version) == "10.1234/test"
+    manifest = json.loads(uploaded["source-manifest.json"])
+    assert set(manifest.values()) == {"figures/plot.svg", "si/structure.xyz"}
+    assert all(name in uploaded for name in manifest)
+    assert "paper.yml" in uploaded and any(name.endswith(".pdf") for name in uploaded)
+    assert not any(name.endswith(".mp4") for name in uploaded)
 
 
 def test_agent_led_needs_agents_and_oversight(tmp_path):

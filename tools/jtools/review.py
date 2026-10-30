@@ -91,7 +91,7 @@ def build_payload(paper: dict, base: Path, findings: list[validate.Finding]) -> 
         "code_availability": paper.get("code_availability"),
         "ai_use": paper.get("ai_use"),
         "ai_contributions": paper.get("ai_contributions"),
-        "supporting_information": [i.get("file") for i in paper.get("supporting_information", [])],
+        "supporting_information": paper.get("supporting_information", []),
         "automated_check_findings": [str(f) for f in findings],
     }
 

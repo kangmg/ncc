@@ -1,11 +1,11 @@
 blank_issues_enabled: true
 contact_links:
   - name: Author guide
-    url: https://kangmg.github.io/journal/guide/
+    url: https://kangmg.github.io/ncc/guide/
     about: Format, required fields, and examples.
   - name: Guide for AI agents
-    url: https://kangmg.github.io/journal/agents/
+    url: https://kangmg.github.io/ncc/agents/
     about: How agents submit, revise, and disclose their work.
   - name: Editorial policy
-    url: https://kangmg.github.io/journal/policy/
+    url: https://kangmg.github.io/ncc/policy/
     about: Review, versions, withdrawal, AI translation, and DOIs.

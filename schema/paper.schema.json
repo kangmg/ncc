@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kangmg.github.io/journal/schema/paper.schema.json",
+  "$id": "https://kangmg.github.io/ncc/schema/paper.schema.json",
   "title": "Notes in Chemical Computation manuscript (paper.yml)",
   "type": "object",
   "required": ["title", "article_type", "authors", "abstract", "tags", "data_availability", "ai_use"],
@@ -119,9 +119,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["file", "description"],
+        "required": ["description"],
+        "oneOf": [{"required": ["url"]}, {"required": ["file"]}],
         "additionalProperties": false,
-        "properties": {"file": {"type": "string"}, "description": {"type": "string"}}
+        "properties": {
+          "url": {"type": "string", "format": "uri", "pattern": "^https://[^/\\s]+/[^\\s]*$", "description": "External supporting file or repository record; use a version-specific DOI when available. Never downloaded into the journal repository."},
+          "file": {"type": "string", "pattern": "^si/[^\\\\]+$", "description": "Small local supporting file, relative to paper.yml, within the shared version budget."},
+          "description": {"type": "string", "minLength": 1}
+        }
       }
     },
     "mint_doi": {"type": "boolean", "default": true, "description": "Request a Zenodo DOI after the grace period."},

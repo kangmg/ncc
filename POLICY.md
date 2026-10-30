@@ -130,17 +130,50 @@ Raising a concern does not make the journal a party to any dispute.
 
 Authors can withdraw an article. Its text and PDFs are removed from this site, and the article page becomes a notice
 with the title, authors, dates, and the reason, so that links and citations keep resolving. Persistent identifiers
-cannot be deleted: if a DOI was registered, its Zenodo record is marked as withdrawn. Zenodo allows the record owner
-to delete a record within 30 days of publication; after that, deletion needs a justified request to Zenodo. The
+remain persistent: if a DOI was registered, its Zenodo record is marked as withdrawn, subject to Zenodo's policies.
+Record removal requests are governed by Zenodo's current policies, not a journal-guaranteed deletion window. The
 maintainer may withdraw articles for misconduct, copyright violations, or legal reasons and will state why.
 Withdrawal does not erase the public Git history, copies already downloaded, or archived files on Zenodo.
 
 ## DOIs
 
-DOIs are registered on Zenodo (DataCite) under the journal's account. Registration waits until a version has been
-online for the grace period set in `journal.yml` (14 days by default) so that early corrections do not create a trail
-of identifiers. Each version receives a version DOI; a concept DOI resolves to the latest version. Authors may opt out
-per article.
+DOIs are registered on Zenodo (DataCite) under the journal's account. A daily scheduled job considers versions
+eligible after 14 days from their recorded version date, subject to the DOI configuration. This allows early
+corrections before identifiers are registered; it isn't a promise of registration at an exact wall-clock time.
+The recorded version date isn't automatically corrected to the merge date. The current configuration is
+`doi.sandbox: true`, so registration uses Zenodo sandbox rather than production.
+This grace period is independent of any data DOI and doesn't delay the requirement to make required data public
+at article publication. Each version receives a version DOI; a concept DOI resolves to the latest version.
+Authors may opt out per article.
+
+## Supporting information, data, and archiving
+
+Required data, including the inputs, outputs, and scripts needed to support the article, must be public at article
+publication. A pending data DOI doesn't extend this deadline. Small supporting information (SI) may be stored
+under `si/` within the manuscript version, using `.xyz`, `.cif`, `.pdb`, `.mol`, `.sdf`, `.gif`, `.csv`, `.txt`,
+`.json`, or `.pdf`. Larger SI must use an external HTTPS URL, preferably a version DOI for the exact dataset or
+release. Each `supporting_information` entry has `description` and exactly one of `file: si/name.xyz` or `url`.
+External SI isn't automatically downloaded into Git or GitHub Pages.
+
+Manuscript assets and local SI share limits of 5 MiB per file, 15 MiB per whole version, and 10 files per whole version, excluding
+`paper.yml`, `translation.*.yml`, and generated PDFs. Submitted PDFs count toward these limits. ZIP and other direct
+archive uploads are rejected. Independent external SI records may contain archives. Retained revision files
+count toward the same whole-version budget.
+
+The journal archives manuscript source, local SI, direct assets, and article PDFs. External SI remains an independent linked
+record under its host's policies; the journal doesn't copy it into its archive or guarantee its preservation.
+Authors are responsible for keeping those records publicly accessible.
+
+The clone-free Issue form is the recommended submission route; pull requests are optional. In the Issue field
+**Supporting information**, use one `URL | description` per line for external SI. Small local SI uses a GitHub
+attachment link in the same syntax, with an explicit extension-bearing filename; a GIF link label must end in
+`.gif`. These attachments are fetched into `si/` and count toward the shared budget. Pull requests use `file`
+entries for local SI. A blank field-based revision field retains the existing list; `None` clears it. A complete
+`paper.yml` is authoritative unless a separate SI field is supplied, which replaces its list.
+
+Ordinary Git clones include local SI. Avoiding unrelated SI downloads requires the combined partial and sparse
+checkout workflow in the author guide, not a universal clone default. Local SI still increases server Git storage
+and remains in its history.
 
 ## Language and AI translation
 
@@ -153,7 +186,7 @@ human translation instead.
 
 AI agents may take part in every step: designing the study, running calculations, writing, submitting, answering
 screening reports, and posting revisions. Agent-led studies are published on the same terms as any other work. The
-rules for agents are in the [guide for AI agents](https://kangmg.github.io/journal/agents/).
+rules for agents are in the [guide for AI agents](https://kangmg.github.io/ncc/agents/).
 
 - **Accountability.** Every manuscript lists at least one human author with a GitHub account who answers for the
   article, including corrections and withdrawal. Agents are credited in a separate AI contribution statement, not
@@ -178,7 +211,7 @@ CC BY-SA 4.0, or CC0. Code shared with articles keeps its own licence.
 ## Knowledge base
 
 Published articles form an open knowledge base for people and AI agents. This section is the procedure for it;
-practical instructions are on the [knowledge base page](https://kangmg.github.io/journal/knowledge/).
+practical instructions are on the [knowledge base page](https://kangmg.github.io/ncc/knowledge/).
 
 - **What is exposed.** Every published version is available as an article page, a PDF, a JSON record
   (`/api/v1/articles/<id>.json`, `/api/v1/articles/<id>v<n>.json`), and Markdown (`/articles/<id>.md`). An index

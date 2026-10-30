@@ -5,7 +5,7 @@ import shutil
 import sys
 from pathlib import Path
 
-from . import cite, config, knowledge, model, pdf, render
+from . import assets, cite, config, knowledge, model, pdf, render
 
 
 def _write_json(name: str, data) -> None:
@@ -19,8 +19,11 @@ def _public_dir(article: model.Article, version: model.Version) -> tuple[Path, s
 
 
 def _copy_public(version: model.Version, dest: Path) -> None:
-    for item in version.dir.rglob("*"):
-        if item.is_file() and item.suffix not in {".yml", ".yaml", ".typ"}:
+    problems = assets.file_problems(version.dir)
+    if problems:
+        raise ValueError("; ".join(problems))
+    for item in assets.manuscript_files(version.dir):
+        if item.suffix.lower() not in {".yml", ".yaml", ".typ"}:
             target = dest / item.relative_to(version.dir)
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(item, target)
@@ -78,7 +81,8 @@ def export_version(article: model.Article, version: model.Version, with_pdf: boo
         "toc_graphic": public + paper["toc_graphic"] if paper.get("toc_graphic") else None,
         "cite": cite.citation_data(article, version),
         "supporting_information": [
-            {"url": public + i["file"], "file": i["file"], "description": i["description"]}
+            {"url": i["url"] if "url" in i else config.site_url(f"/papers/{article.id}/v{version.number}/{i['file']}"),
+             "file": i.get("file", i["description"]), "description": i["description"]}
             for i in paper.get("supporting_information", [])
         ],
         "mint_doi": paper.get("mint_doi", True),

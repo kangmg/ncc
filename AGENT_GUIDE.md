@@ -7,13 +7,13 @@ Machine-readable entry points:
 
 | Resource | Link |
 |---|---|
-| Index for language models | [llms.txt](https://kangmg.github.io/journal/llms.txt) |
-| This guide as Markdown | [agents.md](https://kangmg.github.io/journal/agents.md) |
-| Manuscript schema (JSON Schema 2020-12) | [paper.schema.json](https://kangmg.github.io/journal/schema/paper.schema.json) |
-| Commented manuscript template | [paper.template.yml](https://kangmg.github.io/journal/templates/paper.template.yml) |
-| Repository | [kangmg/journal](https://github.com/kangmg/journal) |
-| Example manuscripts | [examples/](https://github.com/kangmg/journal/tree/main/examples) |
-| Published articles as data, Markdown, and MCP | [knowledge base](https://kangmg.github.io/journal/knowledge/) |
+| Index for language models | [llms.txt](https://kangmg.github.io/ncc/llms.txt) |
+| This guide as Markdown | [agents.md](https://kangmg.github.io/ncc/agents.md) |
+| Manuscript schema (JSON Schema 2020-12) | [paper.schema.json](https://kangmg.github.io/ncc/schema/paper.schema.json) |
+| Commented manuscript template | [paper.template.yml](https://kangmg.github.io/ncc/templates/paper.template.yml) |
+| Repository | [kangmg/ncc](https://github.com/kangmg/ncc) |
+| Example manuscripts | [examples/](https://github.com/kangmg/ncc/tree/main/examples) |
+| Published articles as data, Markdown, and MCP | [knowledge base](https://kangmg.github.io/ncc/knowledge/) |
 
 ## What is allowed
 
@@ -85,15 +85,47 @@ computed, with which method, where the data are) are enforced.
 - **Logs help.** For agent-led work, link transcripts or run logs in `logs`. They are the fastest way for the
   maintainer to check what happened.
 
-## Submitting by pull request (recommended for agents)
+## Submission files and supporting information
 
-The pull-request route keeps figures and data in Git and needs no browser. Issue attachments cannot be uploaded
-through the GitHub API, so agents with figures should use this route.
+The clone-free Issue route is recommended; a pull request is optional. Issue attachments can't be uploaded through
+the GitHub API, so use existing supported GitHub-hosted figure links or the browser form to attach individual files.
+A pull request is another option for local manuscript assets and small supporting information (SI).
+
+Manuscript assets and local SI share limits of 5 MiB per file, 15 MiB per whole version, and 10 files per whole version, excluding `paper.yml`,
+`translation.*.yml`, and generated PDFs. Submitted PDFs count. ZIP and other direct archives are rejected.
+
+Local SI lives under `si/` and allows `.xyz`, `.cif`, `.pdb`, `.mol`, `.sdf`, `.gif`, `.csv`, `.txt`, `.json`, and
+`.pdf`. Each `supporting_information` entry has `description` and exactly one of `file` or `url`:
+
+```yaml
+supporting_information:
+  - file: si/structure.xyz
+    description: Relaxed structure.
+  - url: https://doi.org/10.5281/zenodo.1234567
+    description: Inputs, outputs, and analysis scripts for this version.
+```
+
+Larger SI uses external HTTPS URLs, preferably version DOIs. External records may contain archives and aren't
+automatically downloaded. For Issue submissions, put one `URL | description` per line in **Supporting information**.
+Small local SI uses a GitHub attachment link in the same syntax with an explicit extension-bearing filename;
+a GIF link label must end in `.gif`. Attachments are fetched into `si/` and budgeted with manuscript assets,
+including all retained files in revisions. Pull requests use `file` entries for local SI.
+The journal archives manuscript source, local SI, direct assets, and article PDFs; external SI stays linked.
+Required data must be public at article publication, even if a data DOI is pending. A daily scheduled job registers
+article DOIs after 14 days from the recorded version date, subject to DOI configuration and independent of data DOIs.
+This isn't an exact wall-clock guarantee, and recorded dates aren't automatically corrected to merge dates.
+The current setting is `doi.sandbox: true`, so registration uses Zenodo sandbox.
+
+## Submitting by pull request (optional)
 
 ```bash
-gh repo fork kangmg/journal --clone && cd journal
+# Fork kangmg/ncc on GitHub first.
+git clone --filter=blob:none --sparse https://github.com/YOUR-HANDLE/ncc.git
+cd ncc
+git sparse-checkout set tools schema templates
 uv sync                                           # needs uv, pandoc 3.x, Typst 0.15+
-cp -r examples/research-article submissions/my-short-name   # or start from templates/paper.template.yml
+mkdir -p submissions/my-short-name
+cp templates/paper.template.yml submissions/my-short-name/paper.yml
 # edit submissions/my-short-name/paper.yml and replace the figures
 uv run jtools validate --resolve-dois submissions/my-short-name
 uv run jtools pdf submissions/my-short-name --out /tmp/preview.pdf   # read the PDF before submitting
@@ -101,8 +133,13 @@ git checkout -b submit/my-short-name
 git add submissions/my-short-name
 git commit -m "Submission: <title>"
 git push -u origin submit/my-short-name
-gh pr create --repo kangmg/journal --title "[Submission] <title>" --body-file pr-body.md
+gh pr create --repo kangmg/ncc --title "[Submission] <title>" --body-file pr-body.md
 ```
+
+An ordinary clone includes local SI. Only the combined partial and sparse workflow above avoids unrelated SI
+downloads; it still includes root configuration and documentation. Validate only your own target here. Global
+validation and builds need the omitted `examples/`, `site/`, and `papers/` trees. Server Git storage still grows
+with local SI and its history, regardless of how clients clone.
 
 Rules for the pull request:
 
@@ -126,18 +163,19 @@ Rules for the pull request:
 
 Merging the pull request publishes the article; the article number is assigned at that moment.
 
-## Submitting by issue (text-only manuscripts)
+## Submitting by issue (recommended, no clone needed)
 
-An agent can open a submission issue with `gh issue create`. Use this route only when the manuscript has no local
-figures, or when the figures are already hosted on GitHub. The title must start with `[Submission]`; labels set
+An agent can open a submission issue with `gh issue create`, or use the browser form for local file attachments.
+When using the API, figures must already be hosted on GitHub. The title must start with `[Submission]`; labels set
 through the API are dropped for accounts without write access, so the title is what identifies the issue.
 
 ````bash
-gh issue create --repo kangmg/journal --title "[Submission] <title>" --body-file issue-body.md
+gh issue create --repo kangmg/ncc --title "[Submission] <title>" --body-file issue-body.md
 ````
 
-`issue-body.md` must contain these headings exactly. With the "Complete paper.yml" format the other form fields
-are ignored, so the whole manuscript lives in the YAML block:
+`issue-body.md` must contain these headings exactly. With the "Complete paper.yml" format, include
+`supporting_information` in the YAML block or use the separate `### Supporting information` field, which overrides
+the YAML list when supplied. In that field, use one `URL | description` per line:
 
 ````markdown
 ### Manuscript format
@@ -201,10 +239,14 @@ Fix errors with `gh issue edit <number> --body-file issue-body.md`; the check ru
 
 A revision creates a new version; earlier versions stay online.
 
-- Pull request: add `papers/<id>/v<n+1>/` with a complete `paper.yml` (including `changelog`) and its files.
+- Pull request: first use `git sparse-checkout add papers/<id>/v<N>` for your own new version path if using sparse
+  checkout, then add that folder with a complete `paper.yml` (including `changelog`) and its files.
   Do not edit `record.yml`; it is updated when the pull request is merged.
 - Issue: title `[Revision] <id>`, with the headings `### Article ID`, `### Changelog`, and `### Manuscript format`
   (`Complete paper.yml (pasted below)`), followed by `### Manuscript` with the YAML block.
+  For field-based revisions, leave **Supporting information** blank to retain the existing list, enter `None` to clear
+  it, or provide a replacement list with one `URL | description` per line. A complete `paper.yml` is authoritative
+  unless the separate field is supplied, which replaces its SI list.
 
 Revisions may be opened by a listed human author or by an agent account listed in the latest version's
 `ai_contributions.agents[].github`. Update `ai_contributions` if the agent's role changed.
@@ -225,11 +267,12 @@ These lead to rejection and, for repeated cases, to a ban of the submitting acco
 
 Run through this before opening the pull request or issue. The checks enforce validation, resolvable DOIs, a human author, and the AI disclosure; the rest make the result useful.
 
-- [ ] `uv run jtools validate --resolve-dois <folder>` reports 0 errors.
-- [ ] The preview PDF was generated and read; figures, tables, math, and references render.
+- [ ] For a local manuscript folder, `uv run jtools validate --resolve-dois <folder>` reports 0 errors; for a clone-free Issue, the bot's validation passes.
+- [ ] The local or bot-generated preview PDF was read; figures, tables, math, and references render.
 - [ ] At least one human author with a `github` handle agreed to be responsible.
 - [ ] `ai_contributions` states the level, every agent with its model and roles, and a specific oversight statement.
 - [ ] Every reference with a DOI has it, and every DOI resolves.
-- [ ] Data and scripts are linked in `data_availability` and `code_availability`.
+- [ ] Required data and scripts are public by article publication and linked in `data_availability` and `code_availability`.
+- [ ] SI entries have `description` and exactly one local `file` or external HTTPS `url`; manuscript assets and local SI share the size and count budget and include no direct archives.
 - [ ] Software versions, models, parameters, and seeds are stated.
 - [ ] The title says what was found.

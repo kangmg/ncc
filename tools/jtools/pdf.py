@@ -52,15 +52,18 @@ def build_pdf(article: model.Article, version: model.Version, out: Path, transla
     meta = cite.typst_meta(article, version, translated, status_note)
     (workdir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
     overrides = translation_overrides(version) if translated else None
+    pdf_paper = {**version.paper, "supporting_information": [
+        {"url": item["url"] if "url" in item else config.site_url(f"/papers/{article.id}/v{version.number}/{item['file']}"),
+         "description": item["description"]} for item in version.paper.get("supporting_information", [])]}
 
     template = "/" + str((config.TEMPLATES / "typst" / "journal.typ").relative_to(config.ROOT))
     lines = [f'#import "{template}": article, embed-pdf', '#let meta = json("meta.json")']
     if version.body_kind in ("sections", "markdown"):
-        typ = render.render_typst(version.paper, version.dir, workdir, overrides)
+        typ = render.render_typst(pdf_paper, version.dir, workdir, overrides)
         (workdir / "body.typ").write_text(typ["body"], encoding="utf-8")
         lines += [f"#show: article.with(meta: meta, abstract: [{typ['abstract']}])", '#include "body.typ"']
     else:
-        typ = render.render_typst(version.paper, version.dir, workdir, overrides)
+        typ = render.render_typst(pdf_paper, version.dir, workdir, overrides)
         supplied = supplied_pdf(version, workdir)
         shutil.copy2(supplied, workdir / "supplied.pdf")
         pages = len(PdfReader(str(supplied)).pages)
@@ -70,6 +73,11 @@ def build_pdf(article: model.Article, version: model.Version, out: Path, transla
             f"#text(size: 9pt, style: \"italic\")[The author-supplied manuscript follows ({pages} pages). {note}]",
             '#embed-pdf(read("supplied.pdf", encoding: none), ' + str(pages) + ")",
         ]
+        if pdf_paper.get("supporting_information"):
+            si_paper = {"abstract": "", "supporting_information": pdf_paper["supporting_information"]}
+            si_typ = render.render_typst(si_paper, version.dir, workdir)
+            (workdir / "supporting.typ").write_text(si_typ["body"], encoding="utf-8")
+            lines += ['#pagebreak()', '#include "supporting.typ"']
     main = workdir / "main.typ"
     main.write_text("\n".join(lines) + "\n", encoding="utf-8")
     _typst(main, out, config.ROOT)

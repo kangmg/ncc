@@ -6,16 +6,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for submitting. Read the [author guide](https://kangmg.github.io/journal/guide/) first.
+        Thanks for submitting. Read the [author guide](https://kangmg.github.io/ncc/guide/) first.
         A bot validates this form, converts it to `paper.yml`, and replies with a typeset preview.
         Edit the issue to fix problems; the preview updates automatically.
-        Prefer Git? Open a pull request that adds `submissions/<short-name>/paper.yml` (plus figures) instead.
-        AI agents are welcome to prepare and submit manuscripts; see the [guide for AI agents](https://kangmg.github.io/journal/agents/).
+        This clone-free Issue form is recommended. A pull request adding `submissions/<short-name>/paper.yml` and figures is optional.
+        The journal archives manuscript source, local SI, direct assets, and article PDFs; external SI is only linked.
+        AI agents are welcome to prepare and submit manuscripts; see the [guide for AI agents](https://kangmg.github.io/ncc/agents/).
   - type: input
     id: title
     attributes:
       label: Title
-      placeholder: "How Far Off Is a Universal MLIP for Nb–W–O Surface Energies?"
+      placeholder: "How Far Off Is a Universal MLIP for Nb-W-O Surface Energies?"
     validations:
       required: true
   - type: dropdown
@@ -97,13 +98,30 @@ body:
       description: |
         Markdown sections: start each section with `## Section title`. Use `[@key]` for citations,
         `$...$` for math, and drag images here (add `{#fig:label}` after an image to reference it as `@fig:label`).
-        Complete paper.yml: paste the whole file. Attached formats: leave this empty.
+        Complete paper.yml: paste the whole file; its SI list is authoritative unless the separate Supporting information field is supplied.
+        Attached formats: leave this empty.
       render: markdown
   - type: textarea
     id: files
     attributes:
       label: Files
-      description: Drag and drop figures, the PDF, a `.typ`/`.md` manuscript, or a `.zip` with the manuscript and its figures.
+      description: |
+        Attach individual figures, a PDF, or a `.typ`/`.md` manuscript. Limits: 5 MiB/file, 15 MiB/version,
+        10 files/version, excluding paper.yml, translation.*.yml, and generated PDFs. Submitted PDFs count.
+        Manuscript assets and local SI share this whole-version budget. ZIP and other direct archives are rejected.
+        External SI records may contain archives. Add SI below.
+  - type: textarea
+    id: supporting_information
+    attributes:
+      label: Supporting information
+      description: |
+        One external HTTPS URL per line as `URL | description`; prefer a version DOI for larger SI.
+        External SI is linked, not automatically downloaded. For small local SI, attach a GitHub file link
+        using the same syntax, with an explicit extension-bearing filename; a GIF link label must end in `.gif`.
+        Allowed local SI: xyz,cif,pdb,mol,sdf,gif,csv,txt,json,pdf. Attachments are fetched into si/ and
+        share the manuscript asset budget above. PRs use entries with description and exactly one of
+        file (si/name.xyz) or url. A supplied field replaces the SI list in a complete paper.yml.
+      placeholder: "https://doi.org/10.5281/zenodo.1234567 | Inputs, outputs, and analysis scripts"
   - type: textarea
     id: references
     attributes:
@@ -118,7 +136,7 @@ body:
     id: data_availability
     attributes:
       label: Data availability
-      description: Where can readers get inputs, outputs, and scripts?
+      description: Where can readers get inputs, outputs, and scripts? Required data must be public at article publication, even if a data DOI is pending.
     validations:
       required: true
   - type: input
@@ -180,7 +198,8 @@ body:
     attributes:
       label: DOI
       options:
-        - label: Register a Zenodo DOI for this article after the grace period
+        - label: Register a Zenodo article DOI through the daily schedule after 14 days from the recorded version date, subject to configuration and independent of any data DOI
+      description: "Not an exact wall-clock guarantee; recorded dates aren't automatically corrected to merge dates. Currently doi.sandbox: true uses Zenodo sandbox."
   - type: checkboxes
     id: declarations
     attributes:

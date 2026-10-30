@@ -4,12 +4,12 @@ An open, GitHub-native journal for computational chemistry, simulation, and AI f
 Authors submit through issues or pull requests, an AI editorial agent screens them for scope and spam, the maintainer approves, and the site, PDFs, AI translations, and
 Zenodo DOIs are produced automatically.
 
-- Site: https://kangmg.github.io/journal/
+- Site: https://kangmg.github.io/ncc/
 - For authors: [AUTHOR_GUIDE.md](AUTHOR_GUIDE.md), [examples/](examples/), [templates/paper.template.yml](templates/paper.template.yml)
 - AI agents: [AGENT_GUIDE.md](AGENT_GUIDE.md) (submission contract), [AGENTS.md](AGENTS.md) (repository instructions),
   and on the site `/agents/`, `/agents.md`, `/llms.txt`, `/schema/paper.schema.json`
 - Knowledge base: [KNOWLEDGE_BASE.md](KNOWLEDGE_BASE.md) (`/api/v1/index.json`, `/articles/<id>.md`, `/llms-full.txt`) and the MCP
-  server `ncc-mcp` (`uvx --from "jtools[mcp] @ git+https://github.com/kangmg/journal" ncc-mcp`)
+  server `ncc-mcp` (`uvx --from "jtools[mcp] @ git+https://github.com/kangmg/ncc" ncc-mcp`)
 - Why this journal: [WHY.md](WHY.md)
 - Policies: [POLICY.md](POLICY.md), including the disclaimer
 
@@ -46,6 +46,50 @@ Merging into `main` is the only publication gate. Other commands in an issue (ow
 
 ## Local use
 
+For submissions, use the clone-free Issue form recommended in [AUTHOR_GUIDE.md](AUTHOR_GUIDE.md).
+Small local SI goes under `si/` and allows `.xyz`, `.cif`, `.pdb`, `.mol`, `.sdf`, `.gif`, `.csv`, `.txt`, `.json`,
+and `.pdf`. Manuscript assets and local SI share a whole-version budget of 5 MiB per file, 15 MiB total, and
+10 files, excluding `paper.yml`, translation metadata (`translation.*.yml`), and generated PDFs; submitted PDFs
+count. Direct ZIP and other archive uploads aren't accepted. Larger SI uses external HTTPS URLs, preferably
+version DOIs; external records may contain archives and aren't automatically downloaded.
+Each `supporting_information` entry has `description` and exactly one local `file` or external `url`.
+The journal archives local SI with manuscript sources and article PDFs, but only links external SI.
+
+Ordinary clones include local SI. For an optional submission PR without unrelated manuscript and SI downloads,
+fork the repository on GitHub, then use both partial clone and sparse checkout:
+
+```bash
+git clone --filter=blob:none --sparse https://github.com/YOUR-HANDLE/ncc.git
+cd ncc
+git sparse-checkout set tools schema templates
+uv sync
+git switch -c submit/my-note
+mkdir -p submissions/my-note
+cp templates/paper.template.yml submissions/my-note/paper.yml
+# Edit the manuscript and add its assets and optional si/ files.
+uv run jtools validate --resolve-dois submissions/my-note
+git add submissions/my-note
+git commit -m "Submission: <title>"
+git push -u origin submit/my-note
+gh pr create --repo kangmg/ncc --title "[Submission] <title>"
+```
+
+Root configuration and documentation stay included. For a revision, use
+`git sparse-checkout add papers/<id>/v<N>` for your own new version folder, then validate and stage only that
+folder and open a `[Revision]` PR. Validate only your target in a sparse checkout; global validation and builds
+need `examples/`, `site/`, and `papers/`. This reduces client downloads, not server Git storage growth.
+
+In Issue forms, **Supporting information** takes one `URL | description` per line. For local SI, attach a GitHub
+file link with an explicit extension-bearing filename, including a label ending in `.gif` for GIFs. These files
+are fetched into `si/` and budgeted. PRs use the `file` field. A blank field-based revision retains the existing
+list; `None` clears it. A complete `paper.yml` is authoritative unless the separate field is supplied.
+
+Required data must be public at publication. Article DOI registration is scheduled daily after 14 days from the
+recorded version date, subject to configuration, not at an exact wall-clock time. Recorded dates aren't
+automatically corrected to merge dates. Currently `doi.sandbox: true` selects Zenodo sandbox.
+
+### Full checkout for journal development
+
 Requirements: [uv](https://docs.astral.sh/uv/), pandoc 3.x, Typst 0.15+, Node 22+.
 
 ```bash
@@ -59,14 +103,14 @@ uv run pytest -q
 
 ## One-time setup on GitHub
 
-1. Create the repository `kangmg/journal` (public) and push this folder.
+1. Create the repository `kangmg/ncc` (public) and push this folder.
 2. Settings → Pages → Source: **GitHub Actions**.
 3. Settings → Actions → General → Workflow permissions: **Read and write**, and tick
    **Allow GitHub Actions to create and approve pull requests** (needed by `editorial.yml`).
 4. Create labels: `submission`, `revision`, `withdrawal`, `accepted`, `ready-for-review`, `needs-changes`,
    `revision-requested`, `declined`.
    ```bash
-   for l in submission revision withdrawal accepted ready-for-review needs-changes revision-requested declined; do gh label create "$l" --repo kangmg/journal --force; done
+   for l in submission revision withdrawal accepted ready-for-review needs-changes revision-requested declined; do gh label create "$l" --repo kangmg/ncc --force; done
    ```
 5. Zenodo: create a token with `deposit:write` and `deposit:actions` on https://sandbox.zenodo.org and save it as the
    secret `ZENODO_SANDBOX_TOKEN`. Run the DOI workflow manually with `dry_run`, then for real against the sandbox.
@@ -87,7 +131,7 @@ and the addresses spelled out in the guides, issue forms, and schema:
 
 ```bash
 uv run jtools domain https://journal.example.com     # custom domain at the root
-uv run jtools domain https://kangmg.github.io --base /journal   # back to the project page
+uv run jtools domain https://kangmg.github.io --base /ncc   # back to the project page
 ```
 
 Then, once:

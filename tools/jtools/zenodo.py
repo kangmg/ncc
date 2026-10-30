@@ -4,11 +4,13 @@ import datetime as dt
 import os
 import sys
 import tempfile
+import json
 from pathlib import Path
+from urllib.parse import quote
 
 import requests
 
-from . import cite, config, model, pdf, render
+from . import assets, cite, config, model, pdf, render
 
 LICENSES = {"CC-BY-4.0": "cc-by-4.0", "CC-BY-SA-4.0": "cc-by-sa-4.0", "CC0-1.0": "cc-zero"}
 ISO639_3 = {"en": "eng", "ko": "kor", "ja": "jpn", "zh": "zho", "de": "deu", "fr": "fra", "es": "spa"}
@@ -89,6 +91,9 @@ def deposition_metadata(article: model.Article, version: model.Version, doi: str
     related = [{"identifier": cite.article_url(article, version.number), "relation": "isIdenticalTo", "resource_type": "publication-article"}]
     if paper.get("code_availability", "").startswith("http"):
         related.append({"identifier": paper["code_availability"].split()[0], "relation": "isSupplementedBy", "resource_type": "software"})
+    for item in paper.get("supporting_information", []):
+        if "url" in item:
+            related.append({"identifier": item["url"], "relation": "isSupplementedBy"})
     metadata = {
         "upload_type": "publication",
         "publication_type": "article",
@@ -136,6 +141,9 @@ def _save_record(article: model.Article) -> None:
 
 
 def mint(client: Client, article: model.Article, version: model.Version) -> str:
+    problems = assets.file_problems(version.dir)
+    if problems:
+        raise ZenodoError("; ".join(problems))
     parent = next((v.entry["zenodo_id"] for v in reversed(article.versions[: version.number - 1]) if v.entry.get("zenodo_id")), None)
     draft = client.new_version(parent) if parent else client.create()
     doi = client.reserve_doi(draft)
@@ -148,6 +156,17 @@ def mint(client: Client, article: model.Article, version: model.Version) -> str:
             en_pdf = pdf.build_pdf(article, version, tmpdir / f"{article.key(version.number)}-en.pdf", translated=True)
             client.upload(draft, en_pdf)
         client.upload(draft, version.dir / "paper.yml")
+        manifest = {}
+        for path in assets.manuscript_files(version.dir):
+            rel = path.relative_to(version.dir).as_posix()
+            name = "source--" + quote(rel, safe="")
+            manifest[name] = rel
+            client.upload(draft, path, name=name)
+        manifest_path = tmpdir / "source-manifest.json"
+        manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        client.upload(draft, manifest_path)
+        for path in version.dir.glob("translation.*.yml"):
+            client.upload(draft, path)
     client.set_metadata(draft["id"], deposition_metadata(article, version, doi))
     published = client.publish(draft["id"])
     version.entry["doi"] = published.get("doi", doi)
@@ -194,7 +213,7 @@ def mark_withdrawn(article_id: str) -> None:
         client.publish(dep_id)
         print(f"marked Zenodo record {dep_id} as withdrawn")
     print(
-        "Zenodo keeps published files. Records younger than 30 days can be deleted from the record page "
-        "(Manage record -> Delete); older ones need a deletion request with a reason.",
+        "Zenodo keeps published files. Record removal is governed by Zenodo's current policies; "
+        "the journal does not guarantee a deletion window.",
         file=sys.stderr,
     )

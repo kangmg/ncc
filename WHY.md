@@ -51,7 +51,7 @@ Readers should treat articles as shared results, not as peer-reviewed findings, 
 - It does not do peer review. A result shared here can later grow into a full paper submitted elsewhere, and its
   versions here stay online as a record.
 - It does not arbitrate disputes. Authors are responsible for their submissions, including authorship, rights, and
-  conflicts that arise later; see the [disclaimer](https://kangmg.github.io/journal/policy/#disclaimer).
+  conflicts that arise later; see the [disclaimer](https://kangmg.github.io/ncc/policy/#disclaimer).
 - If you plan to submit the same work to another journal, check that journal's rules on prior publication first. An
   article here has a DOI and may count as published.
 
@@ -61,6 +61,6 @@ Readers should treat articles as shared results, not as peer-reviewed findings, 
 - Every submission, screening report, and decision is a public GitHub issue or pull request, and every change to an
   article is in the Git history.
 - DOIs are registered on Zenodo, operated by CERN.
-- The platform is [open source](https://github.com/kangmg/journal).
+- The platform is [open source](https://github.com/kangmg/ncc).
 - Articles are CC BY 4.0 by default, and authors keep their copyright.
-- Policies are written down in the [editorial policy](https://kangmg.github.io/journal/policy/).
+- Policies are written down in the [editorial policy](https://kangmg.github.io/ncc/policy/).
