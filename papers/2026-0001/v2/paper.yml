@@ -1,0 +1,85 @@
+title: "Notes in Chemical Computation: A Journal for the Calculations That Never Became Papers"
+article_type: editorial
+language: en
+authors:
+  - name: Mingi Kang
+    given: Mingi
+    family: Kang
+    github: kangmg
+    corresponding: true
+abstract: |
+  A useful calculation need not become a full research paper to deserve a public
+  record. Notes in Chemical Computation is a free, open journal for short
+  computational results, benchmarks, negative results, and scientific software.
+  Its purpose is to reduce the effort between obtaining a result and making it
+  available for others to inspect, cite, and reuse. GitHub-based submissions,
+  automated checks, disclosed AI assistance, and versioned publication support
+  that purpose. Articles are screened, not peer-reviewed; responsibility for
+  their claims remains with their authors.
+tags: [Computational Chemistry, Software, Agents]
+license: CC-BY-4.0
+changelog: >-
+  Clarifies the journal's purpose, vision, and publication workflow; explains
+  open reuse and human accountability for agent-assisted work.
+sections:
+  - title: A home for useful smaller results
+    body: |
+      A convergence test, a reproduced energy, an unsuccessful model, or a small
+      analysis tool can save another researcher days of work. Yet these results
+      often remain in notebooks and scratch directories because building a full
+      paper around them costs more effort than the result can justify.
+
+      Notes in Chemical Computation makes room for that work on its own terms.
+      A short article should explain the question, the method, the result and its
+      limits, and where the supporting data or code can be found. The aim is a
+      useful record, not a longer story. This is a publication venue for work
+      that may never grow into a conventional paper, rather than a holding place
+      on the way to another journal.
+  - title: Scope and direction
+    body: |
+      The scope covers computational chemistry, electronic structure,
+      machine-learning interatomic potentials, molecular dynamics and other
+      simulation, AI for chemistry, research agents, and scientific software.
+      Benchmarks, reproductions, and negative results belong alongside new
+      methods. A result can be narrow and still be worth sharing if its conditions
+      and limitations are clear.
+
+      The longer-term aim is a growing, reusable body of computational knowledge.
+      Articles are available as HTML, PDF, structured data, and Markdown, with an
+      MCP interface for agents to search and read them. Open licences and links
+      to inputs, outputs, and scripts let readers follow a claim back to its
+      source. Reading and publishing are free; authors retain their copyright.
+  - title: How publication works
+    body: |
+      Authors submit through a GitHub issue form or a pull request. Manuscripts
+      can use Markdown sections, Markdown or Typst source, or a finished PDF,
+      with structured metadata in `paper.yml`. Automated checks validate the
+      required information, resolve reference DOIs, and generate a PDF preview.
+      An AI editorial agent screens for scope, spam, missing information, and
+      integrity problems. The maintainer confirms the decision; merging the
+      accepted submission publishes it on the site.
+
+      Screening does not assess novelty or significance and does not verify
+      that a method is sound or a result correct. Articles are not peer-reviewed.
+      Readers must judge the evidence, and authors remain responsible for the
+      content, authorship, and rights. Submissions and screening records are
+      public so readers can inspect how a publication decision was reached.
+  - title: Agents, authors, and an evolving record
+    body: |
+      AI agents are welcome to perform calculations, prepare manuscripts, and
+      submit revisions. Their roles and models must be disclosed, along with
+      what a human did and did not check. Every article has a responsible human
+      author identified by a GitHub account. Automation should lower the cost of
+      sharing work without hiding who answers for it.
+
+      Revisions receive a version number and changelog; earlier versions remain
+      readable. Zenodo registers version-specific DOIs after a grace period,
+      with a concept DOI linking the versions. Withdrawal leaves a notice and
+      reason rather than silently erasing the record. Non-English manuscripts
+      receive a labelled AI English translation; the original remains the
+      version of record. Together, these choices favour a record that can be
+      corrected, traced, and reused over a claim of finality.
+data_availability: "Not applicable; no research data were generated for this editorial."
+code_availability: "The journal platform is open source at https://github.com/kangmg/ncc."
+ai_use: "An AI agent drafted this revision under the author's direction; the author reviewed and approved the text."
+mint_doi: true

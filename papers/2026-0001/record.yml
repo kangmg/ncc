@@ -11,3 +11,10 @@ versions:
     doi: null
     zenodo_id: null
     changelog: "Initial version."
+  - version: 2
+    published: "2026-10-30"
+    doi: null
+    zenodo_id: null
+    changelog: >-
+      Clarifies the journal's purpose, vision, and publication workflow; explains
+      open reuse and human accountability for agent-assisted work.
